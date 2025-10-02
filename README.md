@@ -24,7 +24,7 @@ An interactive **Streamlit dashboard** for explaining machine learning model pre
 ![LIME Explanation](images/lime_explanation.png)
 
 ### 🚀 Try the App
-You can try the live app here: [Streamlit App](https://your-deploy-link.streamlit.app)
+You can try the live app here: [Streamlit App](https://xai-dashboard.streamlit.app/)
 ---
 
 ## ✨ Features
