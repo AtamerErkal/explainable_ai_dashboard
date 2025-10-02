@@ -161,31 +161,35 @@ Then open a Pull Request 🚀
 ---
 
 ## 📄 License
-This project is licensed under the MIT License. See the LICENSE file for details.  
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.  
 
 ---
 
 ## 🙏 Acknowledgments
-- SHAP  
-- LIME  
-- Streamlit  
-- scikit-learn  
+
+- [SHAP](https://github.com/slundberg/shap) - SHapley Additive exPlanations  
+- [LIME](https://github.com/marcotcr/lime) - Local Interpretable Model-agnostic Explanations  
+- [Streamlit](https://streamlit.io/) - The fastest way to build data apps  
+- [scikit-learn](https://scikit-learn.org/) - Machine learning in Python  
 
 ---
 
 ## 📧 Contact
-Atamer Erkal  
-[LinkedIn Profile](#)  
-[Project Repository](#)  
+
+Atamer Erkal - [LinkedIn](https://www.linkedin.com/in/atamererkal/)
+
+Project Link: [https://github.com/AtamerErkal/explainable_ai_dashboard](https://github.com/AtamerErkal/explainable_ai_dashboard)  
 
 ---
 
 ## 🎓 Learn More
-- [SHAP Explained](#)  
-- [LIME Explained](#)  
-- [Interpretable ML Guide](#)  
+
+- [Understanding SHAP](https://christophm.github.io/interpretable-ml-book/shap.html)  
+- [Understanding LIME](https://christophm.github.io/interpretable-ml-book/lime.html)  
+- [Explainable AI Guide](https://www.oreilly.com/library/view/interpretable-machine-learning/9781492033158/)  
 
 ---
 
-⭐ If you find this project helpful, please give it a star on GitHub!
+⭐ If you find this project helpful, please give it a star!
 
