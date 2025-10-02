@@ -1,14 +1,9 @@
 \# 🔍 Explainable AI Dashboard
 
-
-
-!\[Python](https://img.shields.io/badge/Python-3.11-blue)
-
-!\[Streamlit](https://img.shields.io/badge/Streamlit-1.27.0-orange)
-
-!\[License](https://img.shields.io/badge/License-MIT-green)
-
-!\[Status](https://img.shields.io/badge/Status-Active-brightgreen)
+![Python](https://img.shields.io/badge/Python-3.11-blue)
+![Streamlit](https://img.shields.io/badge/Streamlit-1.27.0-orange)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Status](https://img.shields.io/badge/Status-Active-brightgreen)
 
 
 
