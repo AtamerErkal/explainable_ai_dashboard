@@ -11,8 +11,20 @@ An interactive **Streamlit dashboard** for explaining machine learning model pre
 
 ## 📷 Dashboard Preview
 
+### Welcome Page
 ![Dashboard Screenshot](images/dashboard_preview.png)
 
+### Model Metrics
+![Model Metrics](images/metrics.png)
+
+### SHAP Analysis
+![SHAP Summary](images/shap_summary.png)
+
+### LIME Analysis
+![LIME Explanation](images/lime_explanation.png)
+
+### 🚀 Try the App
+You can try the live app here: [Streamlit App](https://your-deploy-link.streamlit.app)
 ---
 
 ## ✨ Features
