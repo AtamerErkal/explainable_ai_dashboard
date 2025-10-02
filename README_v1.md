@@ -1,78 +1,53 @@
-\# 🔍 Explainable AI Dashboard
+# 🔍 Explainable AI Dashboard
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.27.0-orange)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Status](https://img.shields.io/badge/Status-Active-brightgreen)
 
-
-
-An interactive Streamlit dashboard for explaining machine learning model predictions using SHAP and LIME techniques.
-
-
+An interactive **Streamlit dashboard** for explaining machine learning model predictions using **SHAP** and **LIME** techniques.
 
 ---
 
+## 📷 Dashboard Preview
 
-
-\## 📷 Dashboard Preview
-
-
-
-!\[Dashboard Screenshot](images/dashboard\_preview.png)
-
-
+![Dashboard Screenshot](images/dashboard_preview.png)
 
 ---
 
+## ✨ Features
 
-
-\## ✨ Features
-
-
-
-\- 📊 \*\*Feature Importance Analysis\*\* — Discover which features matter most in your model's decisions  
-
-\- 🔵 \*\*SHAP Explanations\*\* — Game theory-based feature attribution with global and local insights  
-
-\- 🟢 \*\*LIME Explanations\*\* — Model-agnostic local interpretable explanations  
-
-\- ⚖️ \*\*SHAP vs LIME Comparison\*\* — Side-by-side comparison of both explainability methods  
-
-\- 📈 \*\*Performance Metrics\*\* — Accuracy, Precision, Recall, F1-Score  
-
-\- 🔥 \*\*Correlation Heatmap\*\* — Visualize feature relationships  
-
-\- 🎯 \*\*Confusion Matrix\*\* — Detailed classification performance  
-
-\- 💡 \*\*Multi-class Support\*\* — Works with binary and multi-class classification problems  
-
-
+- 📊 **Feature Importance Analysis** — Discover which features matter most in your model's decisions  
+- 🔵 **SHAP Explanations** — Game theory-based feature attribution with global and local insights  
+- 🟢 **LIME Explanations** — Model-agnostic local interpretable explanations  
+- ⚖️ **SHAP vs LIME Comparison** — Side-by-side comparison of both explainability methods  
+- 📈 **Performance Metrics** — Accuracy, Precision, Recall, F1-Score  
+- 🔥 **Correlation Heatmap** — Visualize feature relationships  
+- 🎯 **Confusion Matrix** — Detailed classification performance  
+- 💡 **Multi-class Support** — Works with binary and multi-class classification problems  
 
 ---
 
-
-
-\## 🚀 Quick Start
-
-
+## 🚀 Quick Start
 
 ```bash
+git clone https://github.com/AtamerErkal/explainable_ai_dashboard.git
+cd explainable_ai_dashboard
 
-git clone https://github.com/AtamerErkal/explainable\_ai\_dashboard.git
-
-cd explainable\_ai\_dashboard
-
+# Create virtual environment
 python -m venv venv
 
-venv\\Scripts\\activate  # On Windows
+# Activate venv
+# On Windows
+venv\Scripts\activate
+# On Linux/MacOS
+source venv/bin/activate
 
+# Install requirements
 pip install -r requirements.txt
 
+# Run the app
 streamlit run dashboard.py
-
-
-
 
 
 Open your browser at: http://localhost:8501
