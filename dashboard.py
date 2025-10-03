@@ -25,16 +25,14 @@ st.set_page_config(
 # Custom CSS styling
 st.markdown("""
 <style>
-    /* Global text color override for main content */
-    body, .main, [data-testid="stAppViewContainer"], [data-testid="stMain"] {
-        color: #1a1a1a !important;
+    /* Headers - inherit theme color */
+    .main h1, .main h2, .main h3, .main h4, .main h5, .main h6 {
+        color: inherit !important;
     }
     
-    /* All text elements in main area */
-    .main *, 
-    [data-testid="stAppViewContainer"] *,
-    [data-testid="stMain"] * {
-        color: #1a1a1a !important;
+    /* Paragraphs - inherit theme color */
+    .main p {
+        color: inherit !important;
     }
     
     .main-header {
@@ -47,6 +45,7 @@ st.markdown("""
         margin-bottom: 1rem;
     }
     
+    /* Gradient boxes - ALWAYS white text */
     .description-box {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         padding: 1.5rem;
@@ -56,7 +55,11 @@ st.markdown("""
         box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
     .description-box,
-    .description-box * {
+    .description-box *,
+    .description-box h3,
+    .description-box p,
+    .description-box strong,
+    .description-box b {
         color: white !important;
     }
     
@@ -68,20 +71,10 @@ st.markdown("""
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     .metric-box,
-    .metric-box * {
+    .metric-box *,
+    .metric-box h2,
+    .metric-box h3 {
         color: white !important;
-    }
-    
-    .info-box {
-        background: #f0f2f6;
-        padding: 1rem;
-        border-radius: 8px;
-        border-left: 4px solid #1f77b4;
-        margin: 1rem 0;
-    }
-    .info-box,
-    .info-box * {
-        color: #1a1a1a !important;
     }
     
     .data-summary-box {
@@ -91,12 +84,29 @@ st.markdown("""
         margin-bottom: 1rem;
     }
     .data-summary-box,
-    .data-summary-box * {
+    .data-summary-box *,
+    .data-summary-box h2,
+    .data-summary-box h3 {
         color: white !important;
     }
     
+    /* Light boxes - ALWAYS dark text */
+    .info-box {
+        background: rgba(240, 242, 246, 0.95);
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 4px solid #1f77b4;
+        margin: 1rem 0;
+    }
+    .info-box,
+    .info-box *,
+    .info-box b,
+    .info-box strong {
+        color: #1a1a1a !important;
+    }
+    
     .explanation-box {
-        background: #e8f4f8;
+        background: rgba(232, 244, 248, 0.95);
         padding: 1rem;
         border-radius: 8px;
         border-left: 4px solid #2ecc71;
@@ -104,7 +114,16 @@ st.markdown("""
         font-size: 0.95rem;
     }
     .explanation-box,
-    .explanation-box * {
+    .explanation-box *,
+    .explanation-box b,
+    .explanation-box strong {
+        color: #1a1a1a !important;
+    }
+    
+    /* Welcome boxes - dark text */
+    div[style*='background: #f0f2f6'] h2,
+    div[style*='background: #f0f2f6'] h3,
+    div[style*='background: #f0f2f6'] p {
         color: #1a1a1a !important;
     }
     
@@ -112,33 +131,12 @@ st.markdown("""
         background-color: #667eea;
     }
     
-    /* Sidebar - light text on dark background */
-    [data-testid="stSidebar"],
-    [data-testid="stSidebar"] * {
-        color: #fafafa !important;
-    }
-    
-    /* Alert messages */
+    /* Alert messages - dark text */
     .stAlert,
-    .stAlert * {
+    .stAlert *,
+    .stAlert b,
+    .stAlert strong {
         color: #1a1a1a !important;
-    }
-    
-    /* Headers in main content */
-    .main h1, .main h2, .main h3, .main h4, .main h5, .main h6,
-    [data-testid="stMain"] h1, 
-    [data-testid="stMain"] h2, 
-    [data-testid="stMain"] h3,
-    [data-testid="stMain"] h4,
-    [data-testid="stMain"] h5,
-    [data-testid="stMain"] h6 {
-        color: #1a1a1a !important;
-    }
-    
-    /* Paragraphs in main content */
-    .main p,
-    [data-testid="stMain"] p {
-        color: #2c3e50 !important;
     }
 </style>
 """, unsafe_allow_html=True)
