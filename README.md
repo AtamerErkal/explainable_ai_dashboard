@@ -156,7 +156,20 @@ Dataset Requirements:
 - Handles missing values automatically  
 
 ---
+## 🤖 Development Notes
 
+This project was developed with assistance from AI tools (Claude/ChatGPT) for:
+- Code structure and architecture design
+- Implementation of specific features
+- Documentation and README creation
+
+**My contributions include:**
+- Project concept and requirements definition
+- Integration and deployment decisions
+- Testing, debugging, and performance optimization
+- Research and domain knowledge integration
+
+---
 ## 🤝 Contributing
 Contributions are welcome!  
 
