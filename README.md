@@ -37,6 +37,9 @@ You can try the live app here: [Streamlit App](https://xai-dashboard.streamlit.a
 - 🔥 **Correlation Heatmap** — Visualize feature relationships  
 - 🎯 **Confusion Matrix** — Detailed classification performance  
 - 💡 **Multi-class Support** — Works with binary and multi-class classification problems  
+- 🔀 **Counterfactual Analysis (DiCE)** — Interactive what-if sliders and automated counterfactual generation to simulate alternative outcomes  
+- 📄 **Audit-Ready PDF Export** — Generate compliance-focused reports summarizing performance metrics and visual explanations with domain-specific interpretations  
+- 🌐 **Domain-Specific Contexts** — Specialized metric emphasis based on Healthcare, Defence, or General industry requirements  
 
 ---
 
@@ -98,6 +101,8 @@ Explore four powerful analysis tabs:
 - Summary Plot: Feature impact across all samples  
 - Bar Plot: Average absolute impact  
 - Waterfall Plot: Individual prediction explanations  
+- Force Plot: Local feature attribution visualized via horizontal interactive force layouts  
+- Dependence Plot: Single feature effect and automatic interaction detection  
 - Multi-class support with per-class visualizations  
 
 ### 🟢 LIME Analysis
@@ -109,6 +114,10 @@ Explore four powerful analysis tabs:
 - Side-by-side comparison  
 - Understand strengths and weaknesses  
 - Method characteristics summary  
+
+### 🔀 Counterfactual Analysis
+- Interactive sliders (manual perturbation) to reverse-engineer local predictions  
+- Automated **DiCE-ML** integration to suggest the minimum feature adjustments required to reverse outcomes  
 
 ---
 
