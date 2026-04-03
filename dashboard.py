@@ -181,10 +181,13 @@ if 'class_names' not in st.session_state:
     st.session_state.class_names = None
 if 'target_name' not in st.session_state:
     st.session_state.target_name = None
+if 'domain' not in st.session_state:
+    st.session_state.domain = "General"
 
 # Sidebar configuration
 with st.sidebar:
     st.markdown("## ⚙️ Configuration")
+    st.session_state.domain = st.selectbox("🌐 Industry / Domain Context", ["General", "Healthcare", "Defence", "Finance"])
     st.markdown("---")
     
     # File upload
@@ -330,6 +333,203 @@ with st.sidebar:
                         
                     except Exception as e:
                         st.error(f"❌ Error: {str(e)}")
+            
+            # PDF Export block
+            st.markdown("---")
+            st.markdown("### 📥 Export Audit Report")
+            if st.button("Generate PDF Report", use_container_width=True):
+                if st.session_state.model is not None:
+                    with st.spinner("Generating PDF..."):
+                        try:
+                            from fpdf import FPDF
+                            import datetime
+                            import matplotlib.pyplot as plt
+                            import shap
+                            from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+                            import seaborn as sns
+                            import numpy as np
+                            import tempfile
+                            
+                            class PDFReport(FPDF):
+                                def header(self):
+                                    self.set_fill_color(31, 41, 55)
+                                    self.rect(0, 0, 210, 25, 'F')
+                                    self.set_y(8)
+                                    self.set_font("Helvetica", "B", 16)
+                                    self.set_text_color(255, 255, 255)
+                                    domain_str = st.session_state.domain.upper() if st.session_state.domain else "UNKNOWN"
+                                    self.cell(0, 10, f"{domain_str} - AI EXPLAINABILITY AUDIT", align='C', ln=True)
+                                    self.set_y(25)
+                                    self.set_text_color(0, 0, 0)
+                                    
+                                def footer(self):
+                                    self.set_y(-15)
+                                    self.set_font("Helvetica", "I", 8)
+                                    self.set_text_color(128, 128, 128)
+                                    self.cell(0, 10, f"Page {self.page_no()}/{{nb}} - Generated on {datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}", align='C')
+                            
+                            pdf = PDFReport()
+                            pdf.alias_nb_pages()
+                            pdf.add_page()
+                            
+                            # Domain Interpretations
+                            pdf.set_y(30)
+                            pdf.set_font("Helvetica", "B", 14)
+                            pdf.set_text_color(31, 41, 55)
+                            pdf.cell(0, 10, "Executive Summary & Domain Context", ln=True)
+                            
+                            pdf.set_font("Helvetica", "", 10)
+                            pdf.set_text_color(50, 50, 50)
+                            if st.session_state.domain == "Healthcare":
+                                exec_summary = "This report evaluates medical predictive models. In the healthcare domain, minimizing False Negatives (maximizing Recall) is critical. A high recall ensures that critical patient anomalies are not missed, which could delay life-saving interventions."
+                            elif st.session_state.domain == "Defence":
+                                exec_summary = "This report evaluates defence and security predictive systems. In defence implementations, robust precision and minimizing False Positives are paramount to avoid unintended critical actions and ensure absolute operational certainty."
+                            else:
+                                exec_summary = "This report summarizes the interpretability and performance metrics of the underlying machine learning model, supporting trust and accountability in automated decisions."
+                            pdf.multi_cell(0, 6, exec_summary)
+                            pdf.ln(5)
+                            
+                            # Model info
+                            pdf.set_text_color(0, 0, 0)
+                            pdf.set_font("Helvetica", "B", 14)
+                            pdf.cell(0, 8, "Model Configuration", ln=True)
+                            pdf.set_font("Helvetica", "", 10)
+                            pdf.cell(0, 6, f"Algorithm: {st.session_state.get('model_name', 'N/A')}", ln=True)
+                            pdf.cell(0, 6, f"Target Variable: {st.session_state.get('target_name', 'N/A')}", ln=True)
+                            pdf.cell(0, 6, f"Dataset Columns: {len(st.session_state.feature_names) if st.session_state.feature_names else 0} features", ln=True)
+                            pdf.ln(4)
+                            
+                            # Performance metrics
+                            y_pred = st.session_state.model.predict(st.session_state.X_test)
+                            acc = accuracy_score(st.session_state.y_test, y_pred)
+                            prec = precision_score(st.session_state.y_test, y_pred, average='macro', zero_division=0)
+                            rec = recall_score(st.session_state.y_test, y_pred, average='macro', zero_division=0)
+                            f1 = f1_score(st.session_state.y_test, y_pred, average='weighted', zero_division=0)
+                            
+                            pdf.set_font("Helvetica", "B", 14)
+                            pdf.cell(0, 8, "Performance Metrics", ln=True)
+                            
+                            pdf.set_font("Helvetica", "B", 11)
+                            pdf.set_fill_color(240, 240, 240)
+                            pdf.cell(95, 8, "Metric", border=1, fill=True)
+                            pdf.cell(95, 8, "Score", border=1, ln=True, fill=True)
+                            
+                            metrics = [("Accuracy", f"{acc:.4f} ({acc:.2%})"),
+                                       ("Precision", f"{prec:.4f} ({prec:.2%})"),
+                                       ("Recall", f"{rec:.4f} ({rec:.2%})"),
+                                       ("F1 Score", f"{f1:.4f} ({f1:.2%})")]
+                                       
+                            for m_name, m_score in metrics:
+                                if st.session_state.domain == "Healthcare" and m_name == "Recall":
+                                    pdf.set_font("Helvetica", "B", 10)
+                                    pdf.set_text_color(180, 0, 0)
+                                elif st.session_state.domain == "Defence" and m_name == "Precision":
+                                    pdf.set_font("Helvetica", "B", 10)
+                                    pdf.set_text_color(180, 0, 0)
+                                else:
+                                    pdf.set_font("Helvetica", "", 10)
+                                    pdf.set_text_color(50, 50, 50)
+                                    
+                                pdf.cell(95, 8, m_name, border=1)
+                                pdf.cell(95, 8, m_score, border=1, ln=True)
+                                
+                            pdf.set_text_color(0, 0, 0)
+                            pdf.ln(5)
+                            
+                            # Confusion Matrix
+                            pdf.set_font("Helvetica", "B", 14)
+                            pdf.cell(0, 10, "Diagnostic Visualizations: Confusion Matrix", ln=True)
+                            cm = confusion_matrix(st.session_state.y_test, y_pred)
+                            
+                            fig_cm, ax_cm = plt.subplots(figsize=(6, 4))
+                            class_labels = st.session_state.class_names if st.session_state.class_names is not None else [f"C{i}" for i in range(len(np.unique(st.session_state.y_test)))]
+                            safe_classes = [str(c).replace('$', '\\$') for c in class_labels]
+                            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax_cm, xticklabels=safe_classes, yticklabels=safe_classes)
+                            ax_cm.set_ylabel('True Label')
+                            ax_cm.set_xlabel('Predicted Label')
+                            plt.tight_layout()
+                            
+                            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp_cm:
+                                fig_cm.savefig(tmp_cm.name, format="png", bbox_inches='tight')
+                                pdf.image(tmp_cm.name, w=110, x=50)
+                            plt.close(fig_cm)
+                            
+                            # Next page for SHAP and Feature Importance
+                            pdf.add_page()
+                            pdf.set_y(30)
+                            
+                            # Feature Importance
+                            if hasattr(st.session_state.model, 'feature_importances_'):
+                                pdf.set_font("Helvetica", "B", 14)
+                                pdf.cell(0, 10, "Feature Importance Rankings", ln=True)
+                                importances = st.session_state.model.feature_importances_
+                                indices = np.argsort(importances)[::-1]
+                                fig_fi, ax_fi = plt.subplots(figsize=(8, 4))
+                                ax_fi.barh(range(min(10, len(indices))), importances[indices][:10], color='cornflowerblue')
+                                ax_fi.set_yticks(range(min(10, len(indices))))
+                                safe_features = [str(st.session_state.feature_names[i]).replace('$', '\\$') for i in indices[:10]]
+                                ax_fi.set_yticklabels(safe_features)
+                                ax_fi.invert_yaxis()
+                                ax_fi.set_title('Top Driving Features for the Algorithm')
+                                plt.tight_layout()
+                                
+                                with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp_fi:
+                                    fig_fi.savefig(tmp_fi.name, format="png", bbox_inches='tight')
+                                    pdf.image(tmp_fi.name, w=150, x=30)
+                                plt.close(fig_fi)
+                                pdf.ln(5)
+                                
+                            pdf.set_font("Helvetica", "B", 14)
+                            pdf.cell(0, 10, "Global Feature Impact (SHAP Summary)", ln=True)
+                            
+                            explainer = shap.TreeExplainer(st.session_state.model)
+                            shap_values_raw = explainer.shap_values(st.session_state.X_test[:100])
+                            if getattr(shap_values_raw, 'shape', None) and len(shap_values_raw.shape) == 3:
+                                shap_values_list = [shap_values_raw[:, :, i] for i in range(shap_values_raw.shape[2])]
+                            elif isinstance(shap_values_raw, list):
+                                shap_values_list = shap_values_raw
+                            else:
+                                shap_values_list = [shap_values_raw]
+                                
+                            shap_values_binary = shap_values_list[1] if len(shap_values_list) == 2 else shap_values_list[0]
+                            
+                            fig_shap, ax_shap = plt.subplots(figsize=(8, 4))
+                            
+                            safe_feature_names = [str(f).replace('$', '\\$') for f in st.session_state.feature_names]
+                            X_plot_safe = st.session_state.X_test[:100].copy()
+                            X_plot_safe.columns = safe_feature_names
+                            
+                            shap.summary_plot(shap_values_binary, X_plot_safe, feature_names=safe_feature_names, show=False)
+                            plt.tight_layout()
+                            
+                            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp_shap:
+                                fig_shap.savefig(tmp_shap.name, format="png", bbox_inches='tight')
+                                pdf.image(tmp_shap.name, w=160, x=25)
+                            plt.close(fig_shap)
+                            pdf.ln(5)
+                            
+                            pdf.set_font("Helvetica", "B", 14)
+                            pdf.cell(0, 8, "LIME & Counterfactual Context", ln=True)
+                            pdf.set_font("Helvetica", "", 10)
+                            pdf.multi_cell(0, 6, "While SHAP demonstrates global contribution patterns, Local Interpretable Model-agnostic Explanations (LIME) and Counterfactual Generation (DiCE) are used extensively within the platform for precise single-instance troubleshooting. This ensures continuous verification against non-compliant AI drift scenarios.")
+                            
+                            st.session_state['pdf_bytes'] = bytes(pdf.output())
+                            
+                        except ImportError as e:
+                            st.error(f"Missing libraries: {str(e)}")
+                        except Exception as e:
+                            st.error(f"Error generating PDF: {str(e)}")
+                else:
+                    st.warning("Please train the model first.")
+            
+            if 'pdf_bytes' in st.session_state:
+                st.download_button(
+                    label="📥 Download PDF",
+                    data=st.session_state['pdf_bytes'],
+                    file_name=f"XAI_Audit_Report.pdf",
+                    mime="application/pdf",
+                    use_container_width=True
+                )
 
 # Main content area
 if st.session_state.model is not None:
@@ -599,11 +799,12 @@ if st.session_state.model is not None:
     st.markdown("---")
     
     # Tabs for different analyses
-    tab1, tab2, tab3, tab4 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "🎯 Feature Importance",
         "🔵 SHAP Analysis",
         "🟢 LIME Analysis",
-        "⚖️ SHAP vs LIME"
+        "⚖️ SHAP vs LIME",
+        "🔀 Counterfactual"
     ])
     
     # Tab 1: Feature Importance
@@ -659,7 +860,12 @@ if st.session_state.model is not None:
             try:
                 # Create SHAP explainer
                 explainer = shap.TreeExplainer(st.session_state.model)
-                shap_values = explainer.shap_values(st.session_state.X_test[:100])
+                shap_values_raw = explainer.shap_values(st.session_state.X_test[:100])
+                
+                if isinstance(shap_values_raw, np.ndarray) and len(shap_values_raw.shape) == 3:
+                    shap_values = [shap_values_raw[:, :, i] for i in range(shap_values_raw.shape[2])]
+                else:
+                    shap_values = shap_values_raw
                 
                 # Handle multi-class output
                 if isinstance(shap_values, list):
@@ -731,6 +937,42 @@ if st.session_state.model is not None:
                         plt.tight_layout()
                         st.pyplot(fig)
                 
+                st.markdown("---")
+                st.markdown("#### 📉 Dependence Plot")
+                st.markdown('<div class="explanation-box"><b>How to read:</b> Shows how a single feature affects the prediction. Color represents a secondary feature, automatically selected to highlight potential interaction effects.</div>', unsafe_allow_html=True)
+                
+                dep_feat = st.selectbox("Select feature for Dependence Plot", st.session_state.feature_names, key="dep_feat_select")
+                
+                if isinstance(shap_values, list) and len(shap_values) > 2:
+                    st.info(f"📊 Showing Dependence plots for all {len(shap_values)} classes")
+                    dep_tabs = st.tabs([st.session_state.class_names[i] if st.session_state.class_names is not None else f"Class {i}" for i in range(len(shap_values))])
+                    
+                    for class_idx, dep_tab in enumerate(dep_tabs):
+                        with dep_tab:
+                            fig, ax = plt.subplots(figsize=(10, 6))
+                            shap.dependence_plot(
+                                dep_feat,
+                                shap_values[class_idx],
+                                st.session_state.X_test[:100],
+                                feature_names=st.session_state.feature_names,
+                                ax=ax,
+                                show=False
+                            )
+                            plt.tight_layout()
+                            st.pyplot(fig)
+                else:
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    shap.dependence_plot(
+                        dep_feat,
+                        shap_values_binary,
+                        st.session_state.X_test[:100],
+                        feature_names=st.session_state.feature_names,
+                        ax=ax,
+                        show=False
+                    )
+                    plt.tight_layout()
+                    st.pyplot(fig)
+
                 # Individual prediction explanation
                 st.markdown("---")
                 st.markdown("#### 🔍 Individual Sample Analysis")
@@ -785,48 +1027,83 @@ if st.session_state.model is not None:
                         class_label = st.session_state.class_names[i] if st.session_state.class_names is not None else f"Class {i}"
                         st.write(f"{class_label}: {prob:.2%}")
                 
-                st.markdown("##### 💧 SHAP Waterfall Plot")
-                st.markdown('<div class="explanation-box"><b>How to read:</b> Start from base value (expected model output). Red arrows push prediction higher, blue arrows push lower. Final value is the actual prediction.</div>', unsafe_allow_html=True)
+                indiv_tabs = st.tabs(["💧 Waterfall Plot", "⚡ Force Plot"])
                 
-                # For multi-class, show waterfall for all classes
-                if isinstance(shap_values, list) and len(shap_values) > 2:
-                    st.info(f"📊 Showing waterfall plots for all {len(shap_values)} classes")
+                with indiv_tabs[0]:
+                    st.markdown('<div class="explanation-box"><b>How to read (Waterfall):</b> Start from base value (expected model output). Red arrows push prediction higher, blue arrows push lower. Final value is the actual prediction.</div>', unsafe_allow_html=True)
                     
-                    # Create tabs for each class
-                    class_tabs = st.tabs([st.session_state.class_names[i] if st.session_state.class_names is not None else f"Class {i}" 
-                                         for i in range(len(shap_values))])
+                    if isinstance(shap_values, list) and len(shap_values) > 2:
+                        st.info(f"📊 Showing waterfall plots for all {len(shap_values)} classes")
+                        class_tabs = st.tabs([st.session_state.class_names[i] if st.session_state.class_names is not None else f"Class {i}" for i in range(len(shap_values))])
+                        
+                        for class_idx, class_tab in enumerate(class_tabs):
+                            with class_tab:
+                                fig, ax = plt.subplots(figsize=(10, 4))
+                                base_val = explainer.expected_value[class_idx] if isinstance(explainer.expected_value, np.ndarray) else explainer.expected_value
+                                shap.waterfall_plot(
+                                    shap.Explanation(
+                                        values=shap_values[class_idx][sample_idx],
+                                        base_values=base_val,
+                                        data=st.session_state.X_test.iloc[sample_idx].values,
+                                        feature_names=st.session_state.feature_names
+                                    ),
+                                    show=False
+                                )
+                                plt.tight_layout()
+                                st.pyplot(fig)
+                    else:
+                        base_val = explainer.expected_value[1] if isinstance(explainer.expected_value, np.ndarray) and len(explainer.expected_value) == 2 else (explainer.expected_value if not isinstance(explainer.expected_value, np.ndarray) else explainer.expected_value[0])
+                        fig, ax = plt.subplots(figsize=(10, 4))
+                        shap.waterfall_plot(
+                            shap.Explanation(
+                                values=shap_values_binary[sample_idx],
+                                base_values=base_val,
+                                data=st.session_state.X_test.iloc[sample_idx].values,
+                                feature_names=st.session_state.feature_names
+                            ),
+                            show=False
+                        )
+                        plt.tight_layout()
+                        st.pyplot(fig)
+                
+                with indiv_tabs[1]:
+                    st.markdown('<div class="explanation-box"><b>How to read (Force):</b> Bold score is the model\'s prediction. Red features push the score higher, blue features push it lower.</div>', unsafe_allow_html=True)
                     
-                    for class_idx, class_tab in enumerate(class_tabs):
-                        with class_tab:
-                            fig, ax = plt.subplots(figsize=(10, 4))
-                            base_val = explainer.expected_value[class_idx] if isinstance(explainer.expected_value, np.ndarray) else explainer.expected_value
-                            shap.waterfall_plot(
-                                shap.Explanation(
-                                    values=shap_values[class_idx][sample_idx],
-                                    base_values=base_val,
-                                    data=st.session_state.X_test.iloc[sample_idx].values,
-                                    feature_names=st.session_state.feature_names
-                                ),
-                                show=False
-                            )
-                            plt.tight_layout()
-                            st.pyplot(fig)
-                else:
-                    # Binary classification
-                    base_val = explainer.expected_value[1] if isinstance(explainer.expected_value, np.ndarray) and len(explainer.expected_value) == 2 else (explainer.expected_value if not isinstance(explainer.expected_value, np.ndarray) else explainer.expected_value[0])
-                    
-                    fig, ax = plt.subplots(figsize=(10, 4))
-                    shap.waterfall_plot(
-                        shap.Explanation(
-                            values=shap_values_binary[sample_idx],
-                            base_values=base_val,
-                            data=st.session_state.X_test.iloc[sample_idx].values,
-                            feature_names=st.session_state.feature_names
-                        ),
-                        show=False
-                    )
-                    plt.tight_layout()
-                    st.pyplot(fig)
+                    if isinstance(shap_values, list) and len(shap_values) > 2:
+                        st.info(f"📊 Showing force plots for all {len(shap_values)} classes")
+                        class_tabs_force = st.tabs([st.session_state.class_names[i] if st.session_state.class_names is not None else f"Class {i}" for i in range(len(shap_values))])
+                        
+                        for class_idx, class_tab_f in enumerate(class_tabs_force):
+                            with class_tab_f:
+                                base_val = explainer.expected_value[class_idx] if isinstance(explainer.expected_value, np.ndarray) else explainer.expected_value
+                                fig_f = shap.force_plot(
+                                    base_val,
+                                    shap_values[class_idx][sample_idx],
+                                    st.session_state.X_test.iloc[sample_idx].values,
+                                    feature_names=st.session_state.feature_names,
+                                    matplotlib=True,
+                                    show=False
+                                )
+                                if fig_f is not None:
+                                    st.pyplot(fig_f)
+                                else:
+                                    st.pyplot(plt.gcf())
+                                plt.close('all')
+                    else:
+                        base_val = explainer.expected_value[1] if isinstance(explainer.expected_value, np.ndarray) and len(explainer.expected_value) == 2 else (explainer.expected_value if not isinstance(explainer.expected_value, np.ndarray) else explainer.expected_value[0])
+                        fig_f = shap.force_plot(
+                            base_val,
+                            shap_values_binary[sample_idx],
+                            st.session_state.X_test.iloc[sample_idx].values,
+                            feature_names=st.session_state.feature_names,
+                            matplotlib=True,
+                            show=False
+                        )
+                        if fig_f is not None:
+                            st.pyplot(fig_f)
+                        else:
+                            st.pyplot(plt.gcf())
+                        plt.close('all')
                 
             except Exception as e:
                 st.error(f"❌ SHAP computation error: {str(e)}")
@@ -1024,7 +1301,12 @@ if st.session_state.model is not None:
             st.markdown('<div class="explanation-box"><b>Method:</b> Uses game theory to fairly distribute prediction credit among features. Guarantees consistency - same feature values always get same credit.</div>', unsafe_allow_html=True)
             try:
                 explainer_comp = shap.TreeExplainer(st.session_state.model)
-                shap_values_comp = explainer_comp.shap_values(st.session_state.X_test[:100])
+                shap_values_comp_raw = explainer_comp.shap_values(st.session_state.X_test[:100])
+                
+                if isinstance(shap_values_comp_raw, np.ndarray) and len(shap_values_comp_raw.shape) == 3:
+                    shap_values_comp = [shap_values_comp_raw[:, :, i] for i in range(shap_values_comp_raw.shape[2])]
+                else:
+                    shap_values_comp = shap_values_comp_raw
                 
                 # Determine number of classes
                 num_classes_comp = len(pred_proba_comp)
@@ -1182,6 +1464,97 @@ if st.session_state.model is not None:
         <b>Use LIME when:</b> You need quick explanations, work with any model type, or need simple linear interpretations.
         </div>
         """, unsafe_allow_html=True)
+        
+    # TAB 5: Counterfactual Analysis
+    with tab5:
+        st.markdown("### 🔀 Counterfactual Analysis")
+        st.markdown('<div class="info-box">What would need to change for the model to predict a different outcome? Adjust sliders to explore or let DiCE find counterfactuals automatically.</div>', unsafe_allow_html=True)
+        cf_idx = st.slider("Select base instance", 0, len(st.session_state.X_test)-1, 0, key="cf_sl")
+        base_row = st.session_state.X_test.iloc[cf_idx].copy()
+        base_pred = st.session_state.model.predict(base_row.values.reshape(1,-1))[0]
+        base_prob = st.session_state.model.predict_proba(base_row.values.reshape(1,-1))[0]
+        base_nm = st.session_state.class_names[base_pred] if st.session_state.class_names else str(base_pred)
+        
+        st.markdown(f'<div class="success-pill">Base prediction: <strong>{base_nm}</strong> ({max(base_prob):.2%} confidence)</div>', unsafe_allow_html=True)
+        
+        st.markdown("#### 🎛️ Interactive What-If Analysis (Manual Perturbation)")
+        st.markdown("Move sliders to see how prediction changes:")
+        cf_vals = {}
+        slider_cols = st.columns(min(3, len(st.session_state.feature_names)))
+        for i,feat in enumerate(st.session_state.feature_names):
+            col = slider_cols[i % len(slider_cols)]
+            with col:
+                feat_min = float(st.session_state.X_train[feat].min())
+                feat_max = float(st.session_state.X_train[feat].max())
+                step = (feat_max-feat_min)/100 if feat_max!=feat_min else 0.01
+                cf_vals[feat] = st.slider(feat, feat_min, feat_max,
+                                           float(base_row[feat]),
+                                           step=step, key=f"cf_{feat}")
+        
+        cf_row_manual = pd.DataFrame([cf_vals])[st.session_state.feature_names]
+        cf_pred_man = st.session_state.model.predict(cf_row_manual.values)[0]
+        cf_prob_man = st.session_state.model.predict_proba(cf_row_manual.values)[0]
+        cf_nm_man = st.session_state.class_names[cf_pred_man] if st.session_state.class_names else str(cf_pred_man)
+        
+        st.markdown("---")
+        res1,res2 = st.columns(2)
+        with res1:
+            st.markdown(f'<div class="metric-box"><h3>Original Prediction</h3><h2 style="text-align: center;">{base_nm}</h2></div>', unsafe_allow_html=True)
+        with res2:
+            changed = cf_pred_man != base_pred
+            st.markdown(f'<div class="metric-box"><h3>{"🎉 Prediction Flipped!" if changed else "Current Prediction"}</h3><h2 style="text-align: center; color: {"#3fb950" if changed else "inherit"};">{cf_nm_man}</h2></div>', unsafe_allow_html=True)
+        
+        if changed:
+            st.markdown('<div class="success-pill">✅ Counterfactual found manually!</div>', unsafe_allow_html=True)
+        
+        st.markdown("---")
+        st.markdown("#### 🤖 Auto Counterfactuals (Powered by DiCE)")
+        try:
+            import dice_ml
+            from dice_ml import Data, Model, Dice
+            
+            with st.spinner("Finding counterfactuals via DiCE..."):
+                data_df = st.session_state.X_train.copy()
+                data_df['target'] = st.session_state.y_train
+                
+                continuous_features = st.session_state.feature_names
+                d = Data(dataframe=data_df, continuous_features=continuous_features, outcome_name='target')
+                
+                # Setup custom sklearn wrapper so DiCE sees a standard model
+                class DiceSKLearnModel:
+                    def __init__(self, model):
+                        self.model = model
+                    def predict_proba(self, X):
+                        return self.model.predict_proba(X)
+                    def predict(self, X):
+                        return self.model.predict(X)
+                
+                m = Model(model=st.session_state.model, backend="sklearn")
+                exp = Dice(d, m, method="random")
+                
+                query_instance = pd.DataFrame([base_row.values], columns=st.session_state.feature_names)
+                
+                is_binary = len(st.session_state.class_names or []) == 2
+                desired_class = "opposite" if is_binary else [c for c in range(len(st.session_state.class_names or [])) if c != base_pred][0]
+                
+                dice_exp = exp.generate_counterfactuals(
+                    query_instance, 
+                    total_CFs=3, 
+                    desired_class=desired_class
+                )
+                
+                cf_df = dice_exp.cf_examples_list[0].final_cfs_df
+                
+                if cf_df is not None and len(cf_df) > 0:
+                    st.success("DiCE automatically found the following counterfactuals:")
+                    st.dataframe(cf_df, use_container_width=True)
+                else:
+                    st.warning("DiCE couldn't find a valid counterfactual for this instance with default bounds.")
+                    
+        except ImportError:
+            st.warning("DiCE-ML library is not installed. Falling back to manual interactive selection above.")
+        except Exception as e:
+            st.warning(f"DiCE encountered an issue generating auto-counterfactuals: {str(e)}")
 
 else:
     # Welcome screen
