@@ -318,13 +318,28 @@ with st.sidebar:
             if len(feature_cols) > 0:
                 model_choice = st.selectbox("Algorithm", ["Random Forest", "Gradient Boosting", "Logistic Regression"])
                 if model_choice == "Random Forest":
-                    n_estimators = st.slider("n_estimators", 10, 200, 100, 10, key="rf_n")
-                    max_depth = st.slider("max_depth", 3, 20, 10, key="rf_d")
+                    n_estimators = st.slider(
+                        "n_estimators", 10, 200, 100, 10, key="rf_n",
+                        help="**What:** Number of trees in the forest.\n\n**Effect:**\n- **Increase (+):** Better stability and accuracy, but slower training.\n- **Decrease (-):** Faster, but higher risk of variance.\n\n**Pro/Con:** General rule: Higher is better, but with diminishing returns."
+                    )
+                    max_depth = st.slider(
+                        "max_depth", 3, 20, 10, key="rf_d",
+                        help="**What:** Maximum depth of each tree.\n\n**Effect:**\n- **Increase (+):** Learns complex patterns, but high risk of **OVERFITTING**.\n- **Decrease (-):** Simpler model, prevents overfitting but might **UNDERFIT**.\n\n**Pro/Con:** Crucial for balancing model complexity."
+                    )
                 elif model_choice == "Gradient Boosting":
-                    n_estimators = st.slider("n_estimators", 10, 200, 100, 10, key="gb_n")
-                    learning_rate = st.slider("learning_rate", 0.01, 0.3, 0.1, 0.01, key="gb_l")
+                    n_estimators = st.slider(
+                        "n_estimators", 10, 200, 100, 10, key="gb_n",
+                        help="**What:** Number of sequential boosting stages.\n\n**Effect:**\n- **Increase (+):** More chances to correct errors, but high risk of **OVERFITTING**.\n- **Decrease (-):** Faster, safer against overfitting but might miss patterns.\n\n**Pro/Con:** Unlike RF, too many trees will definitely overfit here."
+                    )
+                    learning_rate = st.slider(
+                        "learning_rate", 0.01, 0.3, 0.1, 0.01, key="gb_l",
+                        help="**What:** Shrinkage applied to each new tree's contribution.\n\n**Effect:**\n- **Increase (+):** Faster learning, but might 'jump over' the best solution.\n- **Decrease (-):** More precise learning, but requires MORE n_estimators.\n\n**Pro/Con:** Low rate + High n_estimators = Best Performance (but slow)."
+                    )
                 else:
-                    max_iter = st.slider("max_iter", 100, 1000, 200, 100, key="lr_i")
+                    max_iter = st.slider(
+                        "max_iter", 100, 1000, 200, 100, key="lr_i",
+                        help="**What:** Max iterations for the solver to converge.\n\n**Effect:**\n- **Increase (+):** Ensures model finds the best fit on complex data.\n- **Decrease (-):** Faster execution, but risks 'No Convergence' (sub-optimal model)."
+                    )
                 
                 test_size = st.slider("Split (%)", 10, 50, 20, 5) / 100
                 random_state = 42
