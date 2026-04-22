@@ -410,7 +410,13 @@ with st.sidebar:
                     # Store original X for later display
                     X_original = X.copy()
                     
-                    # Handle missing values
+                    # Robust numeric conversion (Fix for Churn-style data where numbers are strings)
+                    for col in X.columns:
+                        converted = pd.to_numeric(X[col], errors='coerce')
+                        if converted.notnull().sum() > (len(X) * 0.5): # If >50% can be numeric, it IS numeric
+                            X[col] = converted
+                    
+                    # Handle missing values after conversion
                     X = X.fillna(X.mean(numeric_only=True))
                     for col in X.select_dtypes(include=['object']).columns:
                         X[col] = X[col].fillna(X[col].mode()[0] if not X[col].mode().empty else 'missing')
