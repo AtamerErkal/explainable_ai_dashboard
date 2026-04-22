@@ -448,7 +448,6 @@ with st.sidebar:
                             le_dict[col] = le
                     
                     # Encode target if categorical
-                    from pandas.api.types import is_numeric_dtype
                     target_is_numeric = is_numeric_dtype(y)
                     
                     if not target_is_numeric:
