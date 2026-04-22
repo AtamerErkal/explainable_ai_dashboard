@@ -1753,7 +1753,13 @@ if st.session_state.model is not None:
     # TAB 5: Counterfactual Analysis
     with tab5:
         st.markdown('<div class="premium-card animate-fade">', unsafe_allow_html=True)
-        st.markdown('<div class="info-box">Dynamic simulation of "What-If" scenarios to determine the minimum feature perturbations required to traverse model decision boundaries.</div>', unsafe_allow_html=True)
+        st.markdown("### 🔀 What-If Counterfactual Reasoning")
+        st.markdown("""
+        <div class="info-box">
+            <b>Basitçe Nedir?</b> "Sonucu değiştirmek için ne yapmalı?" sorusuna yanıt verir. 
+            Algoritmanın kararını değiştirecek en küçük değişikliği bularak size bir yol haritası sunar.
+        </div>
+        """, unsafe_allow_html=True)
         cf_idx = st.slider("Select base instance", 0, len(st.session_state.X_test)-1, 0, key="cf_sl")
         base_row = st.session_state.X_test.iloc[cf_idx].copy()
         base_pred = st.session_state.model.predict(base_row.values.reshape(1,-1))[0]
@@ -1929,10 +1935,16 @@ if st.session_state.model is not None:
         st.markdown('</div>', unsafe_allow_html=True)
 
     # TAB 6: Bias & Fairness Audit
+    # Tab 6: Bias Audit
     with tab6:
         st.markdown('<div class="premium-card animate-fade">', unsafe_allow_html=True)
         st.markdown("### ⚖️ Algorithmic Fairness Protocol")
-        st.markdown('<div class="info-box">Auditing the model for systematic bias. Detects if specific groups are treated unfairly by the decision engine.</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="info-box">
+            <b>Basitçe Nedir?</b> Modelin ahlaki ve yasal denetimidir. 
+            Modelin belirli gruplara (Örn: Cinsiyet, Yaş Grupları vb.) karşı sistematik bir haksızlık yapıp yapmadığını ölçer.
+        </div>
+        """, unsafe_allow_html=True)
         
         fair_feat = st.selectbox("Select Protected Attribute for Audit", st.session_state.feature_names)
         
