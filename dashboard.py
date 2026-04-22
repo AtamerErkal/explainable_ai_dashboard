@@ -438,12 +438,13 @@ with st.sidebar:
                     for col in X.select_dtypes(include=['object']).columns:
                         X[col] = X[col].fillna(X[col].mode()[0] if not X[col].mode().empty else 'missing')
                     
-                    # Encode categorical variables
+                    # Encode categorical variables (Force encode anything not numeric)
                     le_dict = {}
                     for col in X.columns:
-                        if X[col].dtype == 'object':
+                        if not is_numeric_dtype(X[col]):
                             le = LabelEncoder()
-                            X[col] = le.fit_transform(X[col].astype(str))
+                            # Strip any potential noise and ensure string type for encoding
+                            X[col] = le.fit_transform(X[col].astype(str).str.strip())
                             le_dict[col] = le
                     
                     # Encode target if categorical
