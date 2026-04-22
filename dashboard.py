@@ -447,8 +447,10 @@ with st.sidebar:
                             le_dict[col] = le
                     
                     # Encode target if categorical
-                    target_is_categorical = y.dtype == 'object'
-                    if target_is_categorical:
+                    from pandas.api.types import is_numeric_dtype
+                    target_is_numeric = is_numeric_dtype(y)
+                    
+                    if not target_is_numeric:
                         le_target = LabelEncoder()
                         y_encoded = le_target.fit_transform(y.astype(str))
                         le_dict['target'] = le_target
@@ -458,7 +460,7 @@ with st.sidebar:
                         y_encoded = y
                         # For numeric targets, create class names
                         unique_classes = sorted(y.unique())
-                        st.session_state.class_names = [f"Class {int(c)}" for c in unique_classes]
+                        st.session_state.class_names = [f"Class {c}" for c in unique_classes]
                     
                     st.session_state.target_name = target_col
                     
