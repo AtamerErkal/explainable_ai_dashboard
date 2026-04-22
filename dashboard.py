@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import os
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
@@ -8,7 +9,7 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import (accuracy_score, classification_report, confusion_matrix, 
-                            f1_score, recall_score, precision_score)
+                            f1_score, recall_score, precision_score, roc_curve, auc, roc_auc_score)
 import shap
 from lime import lime_tabular
 import warnings
@@ -22,121 +23,205 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS styling
+# Custom CSS styling with Premium Aesthetics
 st.markdown("""
 <style>
-    /* Headers - inherit theme color */
-    .main h1, .main h2, .main h3, .main h4, .main h5, .main h6 {
-        color: inherit !important;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+    :root {
+        --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+        --secondary-gradient: linear-gradient(135deg, #3b82f6 0%, #2dd4bf 100%);
+        --glass-bg: rgba(255, 255, 255, 0.05);
+        --glass-border: rgba(255, 255, 255, 0.1);
     }
-    
-    /* Paragraphs - inherit theme color */
-    .main p {
-        color: inherit !important;
+
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif;
     }
-    
+
+    /* Domain Responsive Styles */
+    .domain-Defence { border-top: 5px solid #ef4444; }
+    .domain-Healthcare { border-top: 5px solid #10b981; }
+    .domain-Finance { border-top: 5px solid #f59e0b; }
+    .domain-General { border-top: 5px solid #6366f1; }
+
     .main-header {
         font-size: 2.5rem;
-        font-weight: 700;
-        background: linear-gradient(120deg, #1f77b4, #ff7f0e);
+        font-weight: 800;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        letter-spacing: -0.05em;
+        background: linear-gradient(to right, #1e293b, #334155);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        text-align: center;
-        margin-bottom: 1rem;
     }
-    
-    /* Gradient boxes - ALWAYS white text */
-    .description-box {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 1.5rem;
-        border-radius: 10px;
-        text-align: center;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    .description-box,
-    .description-box *,
-    .description-box h3,
-    .description-box p,
-    .description-box strong,
-    .description-box b {
-        color: white !important;
-    }
-    
-    .metric-box {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 1.5rem;
-        border-radius: 10px;
-        text-align: center;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    .metric-box,
-    .metric-box *,
-    .metric-box h2,
-    .metric-box h3 {
-        color: white !important;
-    }
-    
-    .data-summary-box {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        padding: 1.5rem;
-        border-radius: 10px;
-        margin-bottom: 1rem;
-    }
-    .data-summary-box,
-    .data-summary-box *,
-    .data-summary-box h2,
-    .data-summary-box h3 {
-        color: white !important;
-    }
-    
-    /* Light boxes - ALWAYS dark text */
-    .info-box {
-        background: rgba(240, 242, 246, 0.95);
+
+    /* Premium Card Design */
+    .premium-card {
+        background: white;
         padding: 1rem;
-        border-radius: 8px;
-        border-left: 4px solid #1f77b4;
-        margin: 1rem 0;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #f1f5f9;
+        margin-bottom: 1.25rem;
+        transition: transform 0.3s ease;
     }
-    .info-box,
-    .info-box *,
-    .info-box b,
-    .info-box strong {
-        color: #1a1a1a !important;
+    
+    .premium-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .description-box {
+        background: var(--primary-gradient);
+        padding: 1.25rem;
+        border-radius: 16px;
+        color: white !important;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.3);
+    }
+    
+    .description-box h3, .description-box p, .description-box strong {
+        color: white !important;
+    }
+
+    /* Metric & Summary Boxes */
+    .metric-box, .data-summary-box {
+        background: white;
+        padding: 1rem;
+        border-radius: 12px;
+        text-align: center;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .metric-box:hover, .data-summary-box:hover {
+        border-color: #6366f1;
+        box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.2);
+    }
+
+    .metric-title {
+        color: #64748b;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .metric-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Information & Explanation Boxes */
+    .info-box {
+        background: #f8fafc;
+        padding: 0.6rem;
+        border-radius: 8px;
+        border-left: 4px solid #6366f1;
+        margin: 0.5rem 0;
+        color: #1e293b !important;
+        font-size: 0.8rem;
     }
     
     .explanation-box {
-        background: rgba(232, 244, 248, 0.95);
-        padding: 1rem;
+        background: #f0fdf4;
+        padding: 0.6rem;
         border-radius: 8px;
-        border-left: 4px solid #2ecc71;
-        margin: 1rem 0;
-        font-size: 0.95rem;
+        border-left: 4px solid #22c55e;
+        margin: 0.5rem 0;
+        font-size: 0.8rem;
+        color: #14532d !important;
     }
-    .explanation-box,
-    .explanation-box *,
-    .explanation-box b,
-    .explanation-box strong {
-        color: #1a1a1a !important;
-    }
-    
-    /* Welcome boxes - dark text */
-    div[style*='background: #f0f2f6'] h2,
-    div[style*='background: #f0f2f6'] h3,
-    div[style*='background: #f0f2f6'] p {
-        color: #1a1a1a !important;
+
+    /* Sidebar Styling */
+    section[data-testid="stSidebar"] {
+        background-color: #f8fafc;
+        border-right: 1px solid #e2e8f0;
     }
     
-    .stProgress > div > div > div > div {
-        background-color: #667eea;
+    .sidebar-header {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Buttons */
+    .stButton>button {
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.2s ease;
     }
     
-    /* Alert messages - dark text */
-    .stAlert,
-    .stAlert *,
-    .stAlert b,
-    .stAlert strong {
-        color: #1a1a1a !important;
+    .stButton>button[kind="primary"] {
+        background: var(--primary-gradient);
+        border: none;
+        color: white;
+    }
+
+    /* Tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        background-color: #f1f5f9;
+        padding: 8px;
+        border-radius: 16px;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        height: 45px;
+        border-radius: 12px;
+        background-color: transparent;
+        border: none;
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    .stTabs [aria-selected="true"] {
+        background-color: white !important;
+        color: #6366f1 !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    /* Tooltip styles */
+    .metric-title {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+    
+    .info-icon {
+        cursor: help;
+        font-size: 0.8rem;
+        background: #e2e8f0;
+        color: #64748b;
+        border-radius: 50%;
+        width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 4px;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade {
+        animation: fadeIn 0.5s ease forwards;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -146,12 +231,12 @@ st.markdown('<p class="main-header">🔍 Explainable AI Dashboard</p>', unsafe_a
 
 # Description
 st.markdown("""
-<div class="description-box">
-    <h3>🎯 What This Dashboard Does</h3>
-    <p style='font-size: 1.1rem; margin-top: 1rem;'>
-        This interactive dashboard helps you understand <strong>how and why</strong> your machine learning model makes predictions.
-        Upload your data, train a model, and explore feature importance, SHAP values, and LIME explanations to gain deep insights 
-        into your model's decision-making process. Compare different explainability methods side-by-side to build trust in your AI system.
+<div class="description-box animate-fade">
+    <h3>🎯 AI Explainability & Governance Protocol</h3>
+    <p style='font-size: 1.1rem; margin-top: 1rem; opacity: 0.9;'>
+        A comprehensive framework for auditing machine learning models. 
+        Gain transparency through <strong>SHAP, LIME, and Counterfactual analysis</strong>. 
+        Ensure trust, compliance, and deep clinical/operational insights.
     </p>
 </div>
 """, unsafe_allow_html=True)
@@ -186,150 +271,144 @@ if 'domain' not in st.session_state:
 
 # Sidebar configuration
 with st.sidebar:
-    st.markdown("## ⚙️ Configuration")
-    st.session_state.domain = st.selectbox("🌐 Industry / Domain Context", ["General", "Healthcare", "Defence", "Finance"])
+    st.markdown(f'<div class="sidebar-header">🛡️ Protocol Control</div>', unsafe_allow_html=True)
+    
+    with st.expander("🌐 Operational Domain", expanded=True):
+        st.session_state.domain = st.selectbox("Industry Context", ["General", "Healthcare", "Defence", "Finance"])
+    
     st.markdown("---")
     
-    # File upload
-    st.markdown("### 📁 Data Upload")
-    uploaded_file = st.file_uploader("Select CSV file", type=['csv'])
+    with st.expander("🧪 Intelligence Intake", expanded=True):
+        # Sample data loader
+        st.markdown("**Domain Samples**")
+        if st.button("Load Domain Sample Data", use_container_width=True):
+            sample_files = {
+                "Healthcare": "sample_data/healthcare_data.csv",
+                "Defence": "sample_data/defence_data.csv",
+                "Finance": "sample_data/finance_data.csv",
+                "General": "sample_data/general_data.csv"
+            }
+            file_path = sample_files.get(st.session_state.domain)
+            if file_path and os.path.exists(file_path):
+                df = pd.read_csv(file_path)
+                st.session_state.original_df = df.copy()
+                st.success(f"✅ Context: {st.session_state.domain}")
+            else:
+                st.warning("Sample not found.")
+
+        st.markdown("**Manual Upload**")
+        uploaded_file = st.file_uploader("Select CSV", type=['csv'])
+        if uploaded_file:
+            st.session_state.original_df = pd.read_csv(uploaded_file)
+
+    st.markdown("---")
     
-    if uploaded_file:
-        df = pd.read_csv(uploaded_file)
-        st.session_state.original_df = df.copy()
-        st.success(f"✅ Loaded: {df.shape[0]} rows, {df.shape[1]} columns")
+    if st.session_state.original_df is not None:
+        df = st.session_state.original_df
         
-        # Show data preview
-        with st.expander("📋 Data Preview"):
-            st.dataframe(df.head(), use_container_width=True)
-        
-        st.markdown("---")
-        
-        # Target variable selection
-        st.markdown("### 🎯 Target Variable")
-        target_col = st.selectbox("Select target column", df.columns.tolist())
-        
-        # Feature selection
-        st.markdown("### 📊 Features")
-        available_features = [col for col in df.columns if col != target_col]
-        feature_cols = st.multiselect(
-            "Select feature columns",
-            available_features,
-            default=available_features[:min(10, len(available_features))]
-        )
-        
-        if len(feature_cols) > 0:
-            st.markdown("---")
+        with st.expander("🤖 AI Reactor Engine", expanded=True):
+            target_col = st.selectbox("Target Variable", df.columns, index=len(df.columns)-1)
+            available_features = [col for col in df.columns if col != target_col]
+            feature_cols = st.multiselect("Feature Selection", available_features, default=available_features[:min(8, len(available_features))])
             
-            # Model selection
-            st.markdown("### 🤖 Model Selection")
-            model_choice = st.selectbox(
-                "Algorithm",
-                ["Random Forest", "Gradient Boosting", "Logistic Regression"]
-            )
-            
-            # Hyperparameters
-            with st.expander("🔧 Hyperparameters"):
+            if len(feature_cols) > 0:
+                model_choice = st.selectbox("Algorithm", ["Random Forest", "Gradient Boosting", "Logistic Regression"])
                 if model_choice == "Random Forest":
-                    n_estimators = st.slider("n_estimators", 10, 200, 100, 10)
-                    max_depth = st.slider("max_depth", 3, 20, 10)
+                    n_estimators = st.slider("n_estimators", 10, 200, 100, 10, key="rf_n")
+                    max_depth = st.slider("max_depth", 3, 20, 10, key="rf_d")
                 elif model_choice == "Gradient Boosting":
-                    n_estimators = st.slider("n_estimators", 10, 200, 100, 10)
-                    learning_rate = st.slider("learning_rate", 0.01, 0.3, 0.1, 0.01)
+                    n_estimators = st.slider("n_estimators", 10, 200, 100, 10, key="gb_n")
+                    learning_rate = st.slider("learning_rate", 0.01, 0.3, 0.1, 0.01, key="gb_l")
                 else:
-                    max_iter = st.slider("max_iter", 100, 1000, 200, 100)
-            
-            # Train/test split
-            test_size = st.slider("Test set ratio (%)", 10, 50, 20, 5) / 100
-            random_state = st.number_input("Random state", 0, 100, 42)
-            
-            st.markdown("---")
-            
-            # Train button
-            if st.button("🚀 Train Model", use_container_width=True, type="primary"):
-                with st.spinner("🔄 Training model..."):
-                    try:
-                        # Prepare data
-                        X = df[feature_cols].copy()
-                        y = df[target_col].copy()
-                        
-                        # Store original X for later display
-                        X_original = X.copy()
-                        
-                        # Handle missing values
-                        X = X.fillna(X.mean(numeric_only=True))
-                        for col in X.select_dtypes(include=['object']).columns:
-                            X[col] = X[col].fillna(X[col].mode()[0] if not X[col].mode().empty else 'missing')
-                        
-                        # Encode categorical variables
-                        le_dict = {}
-                        for col in X.columns:
-                            if X[col].dtype == 'object':
-                                le = LabelEncoder()
-                                X[col] = le.fit_transform(X[col].astype(str))
-                                le_dict[col] = le
-                        
-                        # Encode target if categorical
-                        target_is_categorical = y.dtype == 'object'
-                        if target_is_categorical:
-                            le_target = LabelEncoder()
-                            y_encoded = le_target.fit_transform(y.astype(str))
-                            le_dict['target'] = le_target
-                            # Store class names
-                            st.session_state.class_names = le_target.classes_.tolist()
-                        else:
-                            y_encoded = y
-                            # For numeric targets, create class names
-                            unique_classes = sorted(y.unique())
-                            st.session_state.class_names = [f"Class {int(c)}" for c in unique_classes]
-                        
-                        st.session_state.target_name = target_col
-                        
-                        # Train/test split
-                        X_train, X_test, y_train, y_test = train_test_split(
-                            X, y_encoded, test_size=test_size, random_state=random_state
+                    max_iter = st.slider("max_iter", 100, 1000, 200, 100, key="lr_i")
+                
+                test_size = st.slider("Split (%)", 10, 50, 20, 5) / 100
+                random_state = 42
+
+        # Train button
+        if st.button("🏁 EXECUTE TRAINING", use_container_width=True, type="primary"):
+            with st.spinner("🔄 INITIALIZING REACTOR..."):
+                try:
+                    # Prepare data
+                    X = df[feature_cols].copy()
+                    y = df[target_col].copy()
+                    
+                    # Store original X for later display
+                    X_original = X.copy()
+                    
+                    # Handle missing values
+                    X = X.fillna(X.mean(numeric_only=True))
+                    for col in X.select_dtypes(include=['object']).columns:
+                        X[col] = X[col].fillna(X[col].mode()[0] if not X[col].mode().empty else 'missing')
+                    
+                    # Encode categorical variables
+                    le_dict = {}
+                    for col in X.columns:
+                        if X[col].dtype == 'object':
+                            le = LabelEncoder()
+                            X[col] = le.fit_transform(X[col].astype(str))
+                            le_dict[col] = le
+                    
+                    # Encode target if categorical
+                    target_is_categorical = y.dtype == 'object'
+                    if target_is_categorical:
+                        le_target = LabelEncoder()
+                        y_encoded = le_target.fit_transform(y.astype(str))
+                        le_dict['target'] = le_target
+                        # Store class names
+                        st.session_state.class_names = le_target.classes_.tolist()
+                    else:
+                        y_encoded = y
+                        # For numeric targets, create class names
+                        unique_classes = sorted(y.unique())
+                        st.session_state.class_names = [f"Class {int(c)}" for c in unique_classes]
+                    
+                    st.session_state.target_name = target_col
+                    
+                    # Train/test split
+                    X_train, X_test, y_train, y_test = train_test_split(
+                        X, y_encoded, test_size=test_size, random_state=random_state
+                    )
+                    
+                    # Also split original data for display
+                    X_train_orig, X_test_orig, _, _ = train_test_split(
+                        X_original, y_encoded, test_size=test_size, random_state=random_state
+                    )
+                    
+                    # Train model
+                    if model_choice == "Random Forest":
+                        model = RandomForestClassifier(
+                            n_estimators=n_estimators,
+                            max_depth=max_depth,
+                            random_state=random_state,
+                            n_jobs=-1
                         )
-                        
-                        # Also split original data for display
-                        X_train_orig, X_test_orig, _, _ = train_test_split(
-                            X_original, y_encoded, test_size=test_size, random_state=random_state
+                    elif model_choice == "Gradient Boosting":
+                        model = GradientBoostingClassifier(
+                            n_estimators=n_estimators,
+                            learning_rate=learning_rate,
+                            random_state=random_state
                         )
-                        
-                        # Train model
-                        if model_choice == "Random Forest":
-                            model = RandomForestClassifier(
-                                n_estimators=n_estimators,
-                                max_depth=max_depth,
-                                random_state=random_state,
-                                n_jobs=-1
-                            )
-                        elif model_choice == "Gradient Boosting":
-                            model = GradientBoostingClassifier(
-                                n_estimators=n_estimators,
-                                learning_rate=learning_rate,
-                                random_state=random_state
-                            )
-                        else:
-                            model = LogisticRegression(
-                                max_iter=max_iter,
-                                random_state=random_state
-                            )
-                        
-                        model.fit(X_train, y_train)
-                        
-                        # Store in session state
-                        st.session_state.model = model
-                        st.session_state.X_train = X_train
-                        st.session_state.X_test = X_test
-                        st.session_state.y_train = y_train
-                        st.session_state.y_test = y_test
-                        st.session_state.feature_names = feature_cols
-                        st.session_state.label_encoders = le_dict
-                        st.session_state.model_name = model_choice
-                        st.session_state.X_test_original = X_test_orig
-                        
-                        st.success("✅ Model trained successfully!")
-                        st.balloons()
+                    else:
+                        model = LogisticRegression(
+                            max_iter=max_iter,
+                            random_state=random_state
+                        )
+                    
+                    model.fit(X_train, y_train)
+                    
+                    # Store in session state
+                    st.session_state.model = model
+                    st.session_state.X_train = X_train
+                    st.session_state.X_test = X_test
+                    st.session_state.y_train = y_train
+                    st.session_state.y_test = y_test
+                    st.session_state.feature_names = feature_cols
+                    st.session_state.label_encoders = le_dict
+                    st.session_state.model_name = model_choice
+                    st.session_state.X_test_original = X_test_orig
+                    
+                    st.success("✅ Model trained successfully!")
                         
                     except Exception as e:
                         st.error(f"❌ Error: {str(e)}")
@@ -434,7 +513,45 @@ with st.sidebar:
                                 pdf.cell(95, 8, m_score, border=1, ln=True)
                                 
                             pdf.set_text_color(0, 0, 0)
+                            pdf.ln(2)
+                            
+                            # Educational context in PDF
+                            pdf.set_font("Helvetica", "I", 9)
+                            pdf.set_text_color(100, 100, 100)
+                            
+                            domain_context = ""
+                            if st.session_state.domain == "Healthcare":
+                                domain_context = "In Healthcare, Recall is the most critical metric as it represents the model's ability to catch every positive case (e.g., Disease). A false negative (missing a patient) is much costlier than a false positive."
+                            elif st.session_state.domain == "Defence":
+                                domain_context = "In Defence, Precision is often prioritized to avoid false engagement of targets. High precision ensures that when a target is classified as hostile, it is almost certainly a valid target."
+                            else:
+                                domain_context = "The Balance between Precision and Recall should be tuned based on the 'Cost of Error' in the specific operational environment."
+                                
+                            pdf.multi_cell(0, 5, f"Interpretation Note: {domain_context} The current F1-Score of {f1:.2%} shows the overall harmonic robustness of this intelligence model.")
+                            pdf.set_text_color(0, 0, 0)
                             pdf.ln(5)
+                            
+                            # ROC Curve in PDF
+                            try:
+                                y_prob = st.session_state.model.predict_proba(st.session_state.X_test)
+                                if len(st.session_state.class_names) == 2:
+                                    fpr, tpr, _ = roc_curve(st.session_state.y_test, y_prob[:, 1])
+                                    roc_auc = auc(fpr, tpr)
+                                    fig_roc, ax_roc = plt.subplots(figsize=(6, 4))
+                                    ax_roc.plot(fpr, tpr, color='#6366f1', lw=2, label=f'ROC (AUC = {roc_auc:.3f})')
+                                    ax_roc.plot([0, 1], [0, 1], color='grey', linestyle='--')
+                                    ax_roc.set_title('ROC Curve for Binary Classification')
+                                    ax_roc.legend(loc="lower right")
+                                    plt.tight_layout()
+                                    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp_roc:
+                                        fig_roc.savefig(tmp_roc.name, format="png")
+                                        pdf.image(tmp_roc.name, w=100, x=55)
+                                    plt.close(fig_roc)
+                                    pdf.ln(4)
+                                    pdf.set_font("Helvetica", "B", 10)
+                                    pdf.cell(0, 6, f"AUC Score: {roc_auc:.3f} - Represents the probability that the model ranks a random positive above a random negative.", ln=True)
+                            except:
+                                pass
                             
                             # Confusion Matrix
                             pdf.set_font("Helvetica", "B", 14)
@@ -482,7 +599,11 @@ with st.sidebar:
                             pdf.set_font("Helvetica", "B", 14)
                             pdf.cell(0, 10, "Global Feature Impact (SHAP Summary)", ln=True)
                             
-                            explainer = shap.TreeExplainer(st.session_state.model)
+                            if "LogisticRegression" in str(type(st.session_state.model)):
+                                explainer = shap.LinearExplainer(st.session_state.model, st.session_state.X_train)
+                            else:
+                                explainer = shap.TreeExplainer(st.session_state.model)
+                                
                             shap_values_raw = explainer.shap_values(st.session_state.X_test[:100])
                             if getattr(shap_values_raw, 'shape', None) and len(shap_values_raw.shape) == 3:
                                 shap_values_list = [shap_values_raw[:, :, i] for i in range(shap_values_raw.shape[2])]
@@ -531,6 +652,23 @@ with st.sidebar:
                     use_container_width=True
                 )
 
+    st.markdown("---")
+    st.markdown('<div class="sidebar-header">🛡️ System Status</div>', unsafe_allow_html=True)
+    status_color = "#22c55e" if st.session_state.model else "#64748b"
+    status_text = "Operational" if st.session_state.model else "Idle"
+    st.markdown(f"""
+    <div style="background: white; padding: 1rem; border-radius: 12px; border: 1px solid #e2e8f0;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 10px; height: 10px; border-radius: 50%; background: {status_color};"></div>
+            <div style="font-weight: 600; color: #1e293b;">{status_text}</div>
+        </div>
+        <div style="font-size: 0.75rem; color: #64748b; margin-top: 5px;">
+            Domain: {st.session_state.domain}<br>
+            Model: {st.session_state.get('model_name', 'None')}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
 # Main content area
 if st.session_state.model is not None:
     
@@ -544,35 +682,35 @@ if st.session_state.model is not None:
         
         with col1:
             st.markdown(f"""
-            <div class="data-summary-box">
-                <h3>📋 Total Rows</h3>
-                <h2 style="text-align: center;">{df_summary.shape[0]}</h2>
+            <div class="data-summary-box animate-fade">
+                <div class="metric-title">📋 Total Rows</div>
+                <div class="metric-value">{df_summary.shape[0]}</div>
             </div>
             """, unsafe_allow_html=True)
         
         with col2:
             st.markdown(f"""
-            <div class="data-summary-box">
-                <h3>📊 Total Columns</h3>
-                <h2 style="text-align: center;">{df_summary.shape[1]}</h2>
+            <div class="data-summary-box animate-fade">
+                <div class="metric-title">📊 Total Columns</div>
+                <div class="metric-value">{df_summary.shape[1]}</div>
             </div>
             """, unsafe_allow_html=True)
         
         with col3:
             numeric_cols = df_summary.select_dtypes(include=[np.number]).shape[1]
             st.markdown(f"""
-            <div class="data-summary-box">
-                <h3>🔢 Numeric Features</h3>
-                <h2 style="text-align: center;">{numeric_cols}</h2>
+            <div class="data-summary-box animate-fade">
+                <div class="metric-title">🔢 Numeric Features</div>
+                <div class="metric-value">{numeric_cols}</div>
             </div>
             """, unsafe_allow_html=True)
         
         with col4:
             categorical_cols = df_summary.select_dtypes(include=['object']).shape[1]
             st.markdown(f"""
-            <div class="data-summary-box">
-                <h3>📝 Categorical Features</h3>
-                <h2 style="text-align: center;">{categorical_cols}</h2>
+            <div class="data-summary-box animate-fade">
+                <div class="metric-title">📝 Categorical Features</div>
+                <div class="metric-value">{categorical_cols}</div>
             </div>
             """, unsafe_allow_html=True)
         
@@ -613,47 +751,56 @@ if st.session_state.model is not None:
     
     # Display metrics
     col1, col2, col3, col4, col5 = st.columns(5)
-    
     with col1:
         st.markdown(f"""
-        <div class="metric-box">
-            <h3>🎯 Accuracy</h3>
-            <h2 style="text-align: center;">{accuracy:.2%}</h2>
+        <div class="metric-box animate-fade">
+            <div class="metric-title">🎯 Accuracy <span class="info-icon" title="Overall correctness: Ratio of correct predictions to total cases. Best for balanced datasets.">i</span></div>
+            <div class="metric-value">{accuracy:.2%}</div>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
         st.markdown(f"""
-        <div class="metric-box">
-            <h3>🎪 Precision</h3>
-            <h2 style="text-align: center;">{precision:.2%}</h2>
+        <div class="metric-box animate-fade">
+            <div class="metric-title">🎪 Precision <span class="info-icon" title="Quality: Out of all positive predictions, how many were actually correct? Important for avoiding false alarms.">i</span></div>
+            <div class="metric-value">{precision:.2%}</div>
         </div>
         """, unsafe_allow_html=True)
     
     with col3:
         st.markdown(f"""
-        <div class="metric-box">
-            <h3>🔄 Recall</h3>
-            <h2 style="text-align: center;">{recall:.2%}</h2>
+        <div class="metric-box animate-fade">
+            <div class="metric-title">🔄 Recall <span class="info-icon" title="Quantity: Out of all actual positive cases, how many did we find? Critical for health and safety.">i</span></div>
+            <div class="metric-value">{recall:.2%}</div>
         </div>
         """, unsafe_allow_html=True)
     
     with col4:
         st.markdown(f"""
-        <div class="metric-box">
-            <h3>⚖️ F1 Score</h3>
-            <h2 style="text-align: center;">{f1:.2%}</h2>
+        <div class="metric-box animate-fade">
+            <div class="metric-title">⚖️ F1 Score <span class="info-icon" title="Balanced Harmonic Mean of Precision and Recall. Best overall metric for imbalanced data.">i</span></div>
+            <div class="metric-value">{f1:.2%}</div>
         </div>
         """, unsafe_allow_html=True)
     
     with col5:
         st.markdown(f"""
-        <div class="metric-box">
-            <h3>📊 Selected Features</h3>
-            <h2 style="text-align: center;">{len(st.session_state.feature_names)}</h2>
+        <div class="metric-box animate-fade">
+            <div class="metric-title">📊 Features <span class="info-icon" title="Total number of input variables used to train the current model.">i</span></div>
+            <div class="metric-value">{len(st.session_state.feature_names)}</div>
         </div>
         """, unsafe_allow_html=True)
     
+    # Strategic Audit Verdict
+    ver_col = "#22c55e" if accuracy > 0.8 else "#f59e0b" if accuracy > 0.7 else "#ef4444"
+    st.markdown(f"""
+    <div class="explanation-box" style="border-left-color: {ver_col}; background-color: {ver_col}10;">
+        <strong>📋 Strategic Audit Verdict:</strong> 
+        Model operational at <b>{accuracy:.1%} accuracy</b>. 
+        {"Deployment status: VERIFIED. Governance protocols met." if accuracy > 0.8 else "Deployment status: PROVISIONAL. Secondary audit recommended." if accuracy > 0.7 else "Deployment status: CRITICAL. Does not meet safety thresholds."}
+    </div>
+    """, unsafe_allow_html=True)
+
     st.markdown("---")
     
     # Per-Class Metrics for Multi-class
@@ -689,7 +836,7 @@ if st.session_state.model is not None:
             col_vis1, col_vis2 = st.columns(2)
             
             with col_vis1:
-                fig, ax = plt.subplots(figsize=(10, 6))
+                fig, ax = plt.subplots(figsize=(5, 3))
                 x = np.arange(len(st.session_state.class_names))
                 width = 0.25
                 
@@ -712,7 +859,7 @@ if st.session_state.model is not None:
                 st.pyplot(fig)
             
             with col_vis2:
-                fig, ax = plt.subplots(figsize=(10, 6))
+                fig, ax = plt.subplots(figsize=(5, 3))
                 supports = [report[cn]['support'] for cn in st.session_state.class_names if cn in report]
                 colors = plt.cm.viridis(np.linspace(0, 1, len(supports)))
                 bars = ax.barh(st.session_state.class_names, supports, color=colors)
@@ -733,68 +880,92 @@ if st.session_state.model is not None:
     # Confusion Matrix and Correlation Heatmap
     st.markdown("## 🔍 Model Diagnostics")
     
-    col_diag1, col_diag2 = st.columns(2)
+    col_diag1, col_diag2, col_diag3 = st.columns(3)
     
     with col_diag1:
+        st.markdown('<div class="premium-card animate-fade">', unsafe_allow_html=True)
         st.markdown("### 📊 Confusion Matrix")
-        st.markdown('<div class="info-box">Shows how well the model classifies each class. Diagonal values represent correct predictions.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="info-box">Ratio of correct predictions.</div>', unsafe_allow_html=True)
         
         cm = confusion_matrix(st.session_state.y_test, y_pred)
-        
-        # Use class names for labels
         class_labels = st.session_state.class_names if st.session_state.class_names is not None else [f"Class {i}" for i in range(len(np.unique(st.session_state.y_test)))]
         
-        fig, ax = plt.subplots(figsize=(10, 8))
-        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax, 
-                    cbar_kws={'label': 'Count'},
-                    xticklabels=class_labels,
-                    yticklabels=class_labels,
-                    annot_kws={'size': 11, 'weight': 'bold'})
-        ax.set_xlabel('Predicted Label', fontsize=12, fontweight='bold')
-        ax.set_ylabel('True Label', fontsize=12, fontweight='bold')
-        ax.set_title('Confusion Matrix', fontsize=14, fontweight='bold', pad=20)
-        
-        # Rotate labels for better readability
-        plt.xticks(rotation=45, ha='right')
-        plt.yticks(rotation=0)
-        
+        fig, ax = plt.subplots(figsize=(5, 4))
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax, cbar=False,
+                    xticklabels=class_labels, yticklabels=class_labels)
         plt.tight_layout()
         st.pyplot(fig)
-    
+        st.markdown('</div>', unsafe_allow_html=True)
+
     with col_diag2:
-        st.markdown("### 🔥 Feature Correlation Heatmap")
-        st.markdown('<div class="info-box">Shows relationships between features. High correlation (close to 1 or -1) indicates strong relationships.</div>', unsafe_allow_html=True)
-        
+        st.markdown('<div class="premium-card animate-fade">', unsafe_allow_html=True)
+        st.markdown("### 📈 ROC Curve")
+        st.markdown('<div class="info-box">Separation power.</div>', unsafe_allow_html=True)
+        try:
+            y_prob = st.session_state.model.predict_proba(st.session_state.X_test)
+            if len(st.session_state.class_names) == 2:
+                fpr, tpr, _ = roc_curve(st.session_state.y_test, y_prob[:, 1])
+                roc_auc = auc(fpr, tpr)
+                fig_roc, ax_roc = plt.subplots(figsize=(5, 4))
+                ax_roc.plot(fpr, tpr, color='#6366f1', lw=2, label=f'AUC={roc_auc:.2f}')
+                ax_roc.plot([0, 1], [0, 1], color='#cbd5e1', lw=1, linestyle='--')
+                ax_roc.legend(loc="lower right")
+                plt.tight_layout()
+                st.pyplot(fig_roc)
+            else:
+                macro_auc = roc_auc_score(st.session_state.y_test, y_prob, multi_class='ovr', average='macro')
+                st.metric("Macro AUC", f"{macro_auc:.3f}")
+        except:
+            st.warning("ROC Error")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with col_diag3:
+        st.markdown('<div class="premium-card animate-fade">', unsafe_allow_html=True)
+        st.markdown("### 🔥 Correlation")
+        st.markdown('<div class="info-box">Feature relationships.</div>', unsafe_allow_html=True)
         corr_matrix = st.session_state.X_train.corr()
-        
-        # Determine appropriate figure size based on number of features
-        n_features = len(corr_matrix)
-        fig_size = max(10, n_features * 0.8)
-        
+        fig_size = max(5, len(corr_matrix) * 0.4)
         fig, ax = plt.subplots(figsize=(fig_size, fig_size))
-        
-        # Create heatmap with better readability
-        sns.heatmap(corr_matrix, 
-                    annot=True,  # Show values
-                    fmt='.2f',   # Format to 2 decimal places
-                    cmap='coolwarm', 
-                    center=0, 
-                    ax=ax,
-                    square=True, 
-                    linewidths=1.5,
-                    linecolor='white',
-                    cbar_kws={'label': 'Correlation', 'shrink': 0.8},
-                    annot_kws={'size': 9, 'weight': 'bold'},  # Larger, bold text
-                    vmin=-1, vmax=1)
-        
-        ax.set_title('Feature Correlation Matrix', fontsize=14, fontweight='bold', pad=20)
-        
-        # Rotate labels for better readability
-        plt.xticks(rotation=45, ha='right', fontsize=10)
-        plt.yticks(rotation=0, fontsize=10)
-        
+        sns.heatmap(corr_matrix, cmap='coolwarm', ax=ax, cbar=False)
         plt.tight_layout()
         st.pyplot(fig)
+        st.markdown('</div>', unsafe_allow_html=True)
+    
+    try:
+        y_prob = st.session_state.model.predict_proba(st.session_state.X_test)
+        
+        if len(st.session_state.class_names) == 2:
+            # Binary ROC
+            fpr, tpr, _ = roc_curve(st.session_state.y_test, y_prob[:, 1])
+            roc_auc = auc(fpr, tpr)
+            
+            fig_roc, ax_roc = plt.subplots(figsize=(8, 4))
+            ax_roc.plot(fpr, tpr, color='#6366f1', lw=3, label=f'ROC curve (AUC = {roc_auc:.3f})')
+            ax_roc.plot([0, 1], [0, 1], color='#cbd5e1', lw=2, linestyle='--')
+            ax_roc.set_xlim([0.0, 1.0])
+            ax_roc.set_ylim([0.0, 1.05])
+            ax_roc.set_xlabel('False Positive Rate (1 - Specificity)')
+            ax_roc.set_ylabel('True Positive Rate (Sensitivity)')
+            ax_roc.set_title('Receiver Operating Characteristic (ROC)')
+            ax_roc.legend(loc="lower right")
+            ax_roc.grid(alpha=0.2)
+            plt.tight_layout()
+            st.pyplot(fig_roc)
+            
+            st.markdown(f"""
+            <div class="explanation-box">
+                <strong>📈 Performance Verdict:</strong> 
+                The model achieved an AUC of <b>{roc_auc:.3f}</b>. 
+                {"This indicates excellent separation capability." if roc_auc > 0.8 else "This indicates moderate predictive power." if roc_auc > 0.7 else "Further tuning may be required to improve separation."}
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            macro_auc = roc_auc_score(st.session_state.y_test, y_prob, multi_class='ovr', average='macro')
+            st.info(f"📊 Multiclass detected. Macro-Average AUC: **{macro_auc:.4f}**")
+    except Exception as e:
+        st.warning(f"Could not compute ROC: {str(e)}")
+        
+    st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown("---")
     
@@ -809,8 +980,9 @@ if st.session_state.model is not None:
     
     # Tab 1: Feature Importance
     with tab1:
-        st.markdown("### 📊 Feature Importance Analysis")
-        st.markdown('<div class="info-box">Displays which features have the most influence on model predictions globally across all samples.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="premium-card animate-fade">', unsafe_allow_html=True)
+        st.markdown("### 📊 Global Feature Governance")
+        st.markdown('<div class="info-box">Analyzing the global influence of features across the entire operational lifecycle. Critical for compliance and auditing.</div>', unsafe_allow_html=True)
         
         if hasattr(st.session_state.model, 'feature_importances_'):
             # Get feature importances
@@ -821,7 +993,7 @@ if st.session_state.model is not None:
             
             with col1:
                 # Plot feature importances
-                fig, ax = plt.subplots(figsize=(10, 6))
+                fig, ax = plt.subplots(figsize=(8, 5))
                 colors = plt.cm.viridis(np.linspace(0, 1, len(indices)))
                 bars = ax.barh(range(len(indices)), importances[indices], color=colors)
                 ax.set_yticks(range(len(indices)))
@@ -841,25 +1013,34 @@ if st.session_state.model is not None:
                 })
                 st.dataframe(importance_df, use_container_width=True, hide_index=True)
                 
-                st.markdown("#### 📖 Interpretation")
                 st.markdown("""
-                **How to read this:**
-                - Higher values = more important
-                - Top features drive predictions most
-                - Bottom features have minimal impact
-                """)
+                <div class="explanation-box">
+                    <strong>🔍 Interpretation Protocol:</strong>
+                    <ul style='margin-bottom: 0;'>
+                        <li>Higher values indicate a stronger causal link to the prediction.</li>
+                        <li>Top features should align with domain expertise (e.g., Clinical logic).</li>
+                        <li>Unexpectedly high importance may indicate data leakage or bias.</li>
+                    </ul>
+                </div>
+                """, unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True) # End premium-card
         else:
             st.info("ℹ️ Selected model doesn't support feature importance.")
     
     # Tab 2: SHAP Analysis
     with tab2:
-        st.markdown("### 🔵 SHAP (SHapley Additive exPlanations)")
-        st.markdown('<div class="info-box">SHAP uses game theory to calculate each feature\'s contribution to predictions. It answers: "How much did each feature push the prediction up or down?"</div>', unsafe_allow_html=True)
+        st.markdown('<div class="premium-card animate-fade">', unsafe_allow_html=True)
+        st.markdown("### 🔵 Local & Global Impact (SHAP)")
+        st.markdown('<div class="info-box">SHAP (SHapley Additive exPlanations) leverage game theory to ensure mathematically consistent contribution scores for every prediction.</div>', unsafe_allow_html=True)
         
         with st.spinner("🔄 Computing SHAP values..."):
             try:
-                # Create SHAP explainer
-                explainer = shap.TreeExplainer(st.session_state.model)
+                # Create appropriate SHAP explainer
+                if "LogisticRegression" in str(type(st.session_state.model)):
+                    explainer = shap.LinearExplainer(st.session_state.model, st.session_state.X_train)
+                else:
+                    explainer = shap.TreeExplainer(st.session_state.model)
+                
                 shap_values_raw = explainer.shap_values(st.session_state.X_test[:100])
                 
                 if isinstance(shap_values_raw, np.ndarray) and len(shap_values_raw.shape) == 3:
@@ -885,7 +1066,7 @@ if st.session_state.model is not None:
                         for class_idx in range(len(shap_values)):
                             class_label = st.session_state.class_names[class_idx] if st.session_state.class_names is not None else f"Class {class_idx}"
                             st.markdown(f"##### Class: {class_label}")
-                            fig, ax = plt.subplots(figsize=(10, 6))
+                            fig, ax = plt.subplots(figsize=(5, 3))
                             shap.summary_plot(
                                 shap_values[class_idx], 
                                 st.session_state.X_test[:100],
@@ -896,10 +1077,10 @@ if st.session_state.model is not None:
                             st.pyplot(fig)
                     else:
                         # Binary classification or already selected class
-                        fig, ax = plt.subplots(figsize=(10, 6))
+                        fig, ax = plt.subplots(figsize=(5, 3))
                         shap.summary_plot(
                             shap_values_binary, 
-                            st.session_state.X_test[:100],
+                            st.session_state.X_test_original[:100],
                             feature_names=st.session_state.feature_names,
                             show=False
                         )
@@ -915,10 +1096,10 @@ if st.session_state.model is not None:
                         for class_idx in range(len(shap_values)):
                             class_label = st.session_state.class_names[class_idx] if st.session_state.class_names is not None else f"Class {class_idx}"
                             st.markdown(f"##### Class: {class_label}")
-                            fig, ax = plt.subplots(figsize=(10, 6))
+                            fig, ax = plt.subplots(figsize=(5, 3))
                             shap.summary_plot(
                                 shap_values[class_idx],
-                                st.session_state.X_test[:100],
+                                st.session_state.X_test_original[:100],
                                 feature_names=st.session_state.feature_names,
                                 plot_type="bar",
                                 show=False
@@ -926,7 +1107,7 @@ if st.session_state.model is not None:
                             plt.tight_layout()
                             st.pyplot(fig)
                     else:
-                        fig, ax = plt.subplots(figsize=(10, 6))
+                        fig, ax = plt.subplots(figsize=(5, 3))
                         shap.summary_plot(
                             shap_values_binary,
                             st.session_state.X_test[:100],
@@ -949,11 +1130,12 @@ if st.session_state.model is not None:
                     
                     for class_idx, dep_tab in enumerate(dep_tabs):
                         with dep_tab:
-                            fig, ax = plt.subplots(figsize=(10, 6))
+                            fig, ax = plt.subplots(figsize=(5, 3))
                             shap.dependence_plot(
                                 dep_feat,
                                 shap_values[class_idx],
                                 st.session_state.X_test[:100],
+                                display_features=st.session_state.X_test_original[:100],
                                 feature_names=st.session_state.feature_names,
                                 ax=ax,
                                 show=False
@@ -961,11 +1143,12 @@ if st.session_state.model is not None:
                             plt.tight_layout()
                             st.pyplot(fig)
                 else:
-                    fig, ax = plt.subplots(figsize=(10, 6))
+                    fig, ax = plt.subplots(figsize=(5, 3))
                     shap.dependence_plot(
                         dep_feat,
                         shap_values_binary,
                         st.session_state.X_test[:100],
+                        display_features=st.session_state.X_test_original[:100],
                         feature_names=st.session_state.feature_names,
                         ax=ax,
                         show=False
@@ -1044,7 +1227,7 @@ if st.session_state.model is not None:
                                     shap.Explanation(
                                         values=shap_values[class_idx][sample_idx],
                                         base_values=base_val,
-                                        data=st.session_state.X_test.iloc[sample_idx].values,
+                                        data=st.session_state.X_test_original.iloc[sample_idx].values,
                                         feature_names=st.session_state.feature_names
                                     ),
                                     show=False
@@ -1058,7 +1241,7 @@ if st.session_state.model is not None:
                             shap.Explanation(
                                 values=shap_values_binary[sample_idx],
                                 base_values=base_val,
-                                data=st.session_state.X_test.iloc[sample_idx].values,
+                                data=st.session_state.X_test_original.iloc[sample_idx].values,
                                 feature_names=st.session_state.feature_names
                             ),
                             show=False
@@ -1105,13 +1288,15 @@ if st.session_state.model is not None:
                             st.pyplot(plt.gcf())
                         plt.close('all')
                 
+                st.markdown('</div>', unsafe_allow_html=True) # End SHAP card
             except Exception as e:
                 st.error(f"❌ SHAP computation error: {str(e)}")
     
     # Tab 3: LIME Analysis
     with tab3:
-        st.markdown("### 🟢 LIME (Local Interpretable Model-agnostic Explanations)")
-        st.markdown('<div class="info-box">LIME explains individual predictions by creating a simple, interpretable model around that specific prediction. It answers: "If I change this feature slightly, how does the prediction change?"</div>', unsafe_allow_html=True)
+        st.markdown('<div class="premium-card animate-fade">', unsafe_allow_html=True)
+        st.markdown("### 🟢 Precision Local Audit (LIME)")
+        st.markdown('<div class="info-box">LIME provides granular insights into specific operational decisions. Ideal for troubleshooting individual model drifts or edge cases.</div>', unsafe_allow_html=True)
         
         sample_idx_lime = st.slider(
             "Select test sample to analyze",
@@ -1171,11 +1356,21 @@ if st.session_state.model is not None:
         
         with st.spinner("🔄 Generating LIME explanation..."):
             try:
+                # Identify categorical features for LIME
+                categorical_features_idx = []
+                categorical_names = {}
+                for i, col in enumerate(st.session_state.feature_names):
+                    if col in st.session_state.label_encoders:
+                        categorical_features_idx.append(i)
+                        categorical_names[i] = st.session_state.label_encoders[col].classes_.tolist()
+                
                 # Create LIME explainer
                 explainer_lime = lime_tabular.LimeTabularExplainer(
                     st.session_state.X_train.values,
                     feature_names=st.session_state.feature_names,
                     class_names=st.session_state.class_names if st.session_state.class_names is not None else [f'Class {i}' for i in range(len(pred_proba_lime))],
+                    categorical_features=categorical_features_idx,
+                    categorical_names=categorical_names,
                     mode='classification'
                 )
                 
@@ -1234,13 +1429,15 @@ if st.session_state.model is not None:
                 </div>
                 """, unsafe_allow_html=True)
                 
+                st.markdown('</div>', unsafe_allow_html=True) # End LIME card
             except Exception as e:
                 st.error(f"❌ LIME computation error: {str(e)}")
     
     # Tab 4: Comparison
     with tab4:
-        st.markdown("### ⚖️ SHAP vs LIME Comparison")
-        st.markdown('<div class="info-box">Compare how SHAP and LIME explain the same prediction. SHAP is globally consistent but slower; LIME is faster but can vary between runs.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="premium-card animate-fade">', unsafe_allow_html=True)
+        st.markdown("### ⚖️ Cross-Audit Protocol (SHAP vs LIME)")
+        st.markdown('<div class="info-box">Comparing global theoretical contributions against local surrogate estimations to ensure absolute model alignment.</div>', unsafe_allow_html=True)
         
         comparison_idx = st.slider(
             "Select sample for comparison",
@@ -1300,7 +1497,11 @@ if st.session_state.model is not None:
             st.markdown("#### 🔵 SHAP Explanation")
             st.markdown('<div class="explanation-box"><b>Method:</b> Uses game theory to fairly distribute prediction credit among features. Guarantees consistency - same feature values always get same credit.</div>', unsafe_allow_html=True)
             try:
-                explainer_comp = shap.TreeExplainer(st.session_state.model)
+                if "LogisticRegression" in str(type(st.session_state.model)):
+                    explainer_comp = shap.LinearExplainer(st.session_state.model, st.session_state.X_train)
+                else:
+                    explainer_comp = shap.TreeExplainer(st.session_state.model)
+                
                 shap_values_comp_raw = explainer_comp.shap_values(st.session_state.X_test[:100])
                 
                 if isinstance(shap_values_comp_raw, np.ndarray) and len(shap_values_comp_raw.shape) == 3:
@@ -1464,11 +1665,13 @@ if st.session_state.model is not None:
         <b>Use LIME when:</b> You need quick explanations, work with any model type, or need simple linear interpretations.
         </div>
         """, unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True) # End Comparison card
         
     # TAB 5: Counterfactual Analysis
     with tab5:
-        st.markdown("### 🔀 Counterfactual Analysis")
-        st.markdown('<div class="info-box">What would need to change for the model to predict a different outcome? Adjust sliders to explore or let DiCE find counterfactuals automatically.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="premium-card animate-fade">', unsafe_allow_html=True)
+        st.markdown("### 🔀 Counterfactual Reasoning (DiCE)")
+        st.markdown('<div class="info-box">Dynamic simulation of "What-If" scenarios to determine the minimum feature perturbations required to traverse model decision boundaries.</div>', unsafe_allow_html=True)
         cf_idx = st.slider("Select base instance", 0, len(st.session_state.X_test)-1, 0, key="cf_sl")
         base_row = st.session_state.X_test.iloc[cf_idx].copy()
         base_pred = st.session_state.model.predict(base_row.values.reshape(1,-1))[0]
@@ -1481,15 +1684,25 @@ if st.session_state.model is not None:
         st.markdown("Move sliders to see how prediction changes:")
         cf_vals = {}
         slider_cols = st.columns(min(3, len(st.session_state.feature_names)))
-        for i,feat in enumerate(st.session_state.feature_names):
+        for i, feat in enumerate(st.session_state.feature_names):
             col = slider_cols[i % len(slider_cols)]
             with col:
-                feat_min = float(st.session_state.X_train[feat].min())
-                feat_max = float(st.session_state.X_train[feat].max())
-                step = (feat_max-feat_min)/100 if feat_max!=feat_min else 0.01
-                cf_vals[feat] = st.slider(feat, feat_min, feat_max,
-                                           float(base_row[feat]),
-                                           step=step, key=f"cf_{feat}")
+                if feat in st.session_state.label_encoders:
+                    le = st.session_state.label_encoders[feat]
+                    options = le.classes_.tolist()
+                    base_val_raw = int(base_row[feat])
+                    # Ensure base_val is within bounds (should be)
+                    base_val_idx = min(max(0, base_val_raw), len(options) - 1)
+                    
+                    selected_label = st.selectbox(feat, options, index=base_val_idx, key=f"cf_{feat}")
+                    cf_vals[feat] = le.transform([selected_label])[0]
+                else:
+                    feat_min = float(st.session_state.X_train[feat].min())
+                    feat_max = float(st.session_state.X_train[feat].max())
+                    step = (feat_max-feat_min)/50 if feat_max!=feat_min else 0.01
+                    cf_vals[feat] = st.slider(feat, feat_min, feat_max,
+                                               float(base_row[feat]),
+                                               step=step, key=f"cf_{feat}")
         
         cf_row_manual = pd.DataFrame([cf_vals])[st.session_state.feature_names]
         cf_pred_man = st.session_state.model.predict(cf_row_manual.values)[0]
@@ -1509,6 +1722,7 @@ if st.session_state.model is not None:
         
         st.markdown("---")
         st.markdown("#### 🤖 Auto Counterfactuals (Powered by DiCE)")
+        st.markdown('<div class="info-box">DiCE (Diverse Counterfactual Explanations) provides actionable insights by identifying the <b>minimum required changes</b> to features to flip a model\'s prediction. It uses advanced search algorithms to find diverse pathways—ideal for providing "what-if" guidance to end-users (e.g., "What specific changes would lead to a loan approval?").</div>', unsafe_allow_html=True)
         try:
             import dice_ml
             from dice_ml import Data, Model, Dice
@@ -1547,7 +1761,25 @@ if st.session_state.model is not None:
                 
                 if cf_df is not None and len(cf_df) > 0:
                     st.success("DiCE automatically found the following counterfactuals:")
-                    st.dataframe(cf_df, use_container_width=True)
+                    
+                    # Inverse transform categorical columns for display
+                    display_cf_df = cf_df.copy()
+                    for col in display_cf_df.columns:
+                        if col in st.session_state.label_encoders:
+                            le = st.session_state.label_encoders[col]
+                            # Robustly convert float strings to category labels
+                            display_cf_df[col] = display_cf_df[col].apply(
+                                lambda x: le.inverse_transform([int(round(float(x)))])[0] 
+                                if pd.notnull(x) else x
+                            )
+                        elif col == 'target' and 'target' in st.session_state.label_encoders:
+                            le = st.session_state.label_encoders['target']
+                            display_cf_df[col] = display_cf_df[col].apply(
+                                lambda x: le.inverse_transform([int(round(float(x)))])[0]
+                                if pd.notnull(x) else x
+                            )
+                    
+                    st.dataframe(display_cf_df, use_container_width=True)
                 else:
                     st.warning("DiCE couldn't find a valid counterfactual for this instance with default bounds.")
                     
@@ -1555,19 +1787,128 @@ if st.session_state.model is not None:
             st.warning("DiCE-ML library is not installed. Falling back to manual interactive selection above.")
         except Exception as e:
             st.warning(f"DiCE encountered an issue generating auto-counterfactuals: {str(e)}")
+        st.markdown('</div>', unsafe_allow_html=True) # End Counterfactual card
+
+    # TAB 6: Bias & Fairness Audit
+    with tab6:
+        st.markdown('<div class="premium-card animate-fade">', unsafe_allow_html=True)
+        st.markdown("### ⚖️ Algorithmic Fairness Protocol")
+        st.markdown('<div class="info-box">Auditing the model for systematic bias. Detects if specific groups are treated unfairly by the decision engine.</div>', unsafe_allow_html=True)
+        
+        fair_feat = st.selectbox("Select Protected Attribute for Audit", st.session_state.feature_names, key="fair_audit_sel")
+        
+        if fair_feat:
+            # Simple Disparate Impact calculation
+            X_tmp = st.session_state.X_test_original.copy()
+            X_tmp['pred'] = st.session_state.model.predict(st.session_state.X_test)
+            
+            groups = [g for g in X_tmp[fair_feat].unique() if pd.notnull(g)]
+            if len(groups) > 1:
+                st.markdown(f"#### Audit: {fair_feat}")
+                metrics_fair = []
+                
+                for g in groups:
+                    group_data = X_tmp[X_tmp[fair_feat] == g]
+                    # Logic to find "positive" outcome (class 1 or first unique if numeric)
+                    unique_preds = X_tmp['pred'].unique()
+                    pos_val = unique_preds[1] if len(unique_preds) > 1 else unique_preds[0]
+                    pos_rate = (group_data['pred'] == pos_val).mean()
+                    metrics_fair.append({'Group': str(g), 'Selection Rate': pos_rate})
+                
+                fair_df = pd.DataFrame(metrics_fair)
+                
+                col_fair1, col_fair2 = st.columns([1, 2])
+                with col_fair1:
+                    st.dataframe(fair_df, use_container_width=True, hide_index=True)
+                    
+                    max_rate = fair_df['Selection Rate'].max()
+                    min_rate = fair_df['Selection Rate'].min()
+                    di_ratio = min_rate / max_rate if max_rate > 0 else 1.0
+                    
+                    st.metric("Disparate Impact Ratio", f"{di_ratio:.2f}", 
+                              help="Ratio of min selection rate to max selection rate. Ideal: > 0.8 (Four-Fifths Rule).")
+                    
+                    if di_ratio < 0.8:
+                        st.error("⚠️ BIAS DETECTED: Disparate Impact ratio is below 0.8 threshold.")
+                    else:
+                        st.success("✅ COMPLIANCE: No significant disparate impact detected.")
+                
+                with col_fair2:
+                    fig_fair, ax_fair = plt.subplots(figsize=(6, 3))
+                    sns.barplot(data=fair_df, x='Group', y='Selection Rate', palette='viridis', ax=ax_fair)
+                    ax_fair.set_title('Group Selection Rates')
+                    ax_fair.axhline(0.8 * max_rate, color='red', linestyle='--', label='80% Threshold')
+                    plt.xticks(rotation=45)
+                    plt.tight_layout()
+                    st.pyplot(fig_fair)
+            else:
+                st.info("Insufficient variance in selected feature for fairness audit.")
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # TAB 6: Bias & Fairness Audit
+    with tab6:
+        st.markdown('<div class="premium-card animate-fade">', unsafe_allow_html=True)
+        st.markdown("### ⚖️ Algorithmic Fairness Protocol")
+        st.markdown('<div class="info-box">Auditing the model for systematic bias. Detects if specific groups are treated unfairly by the decision engine.</div>', unsafe_allow_html=True)
+        
+        fair_feat = st.selectbox("Select Protected Attribute for Audit", st.session_state.feature_names)
+        
+        if fair_feat:
+            # Simple Disparate Impact calculation
+            X_tmp = st.session_state.X_test_original.copy()
+            X_tmp['pred'] = st.session_state.model.predict(st.session_state.X_test)
+            
+            groups = X_tmp[fair_feat].unique()
+            if len(groups) > 1:
+                st.markdown(f"#### Audit: {fair_feat}")
+                metrics_fair = []
+                
+                for g in groups:
+                    group_data = X_tmp[X_tmp[fair_feat] == g]
+                    pos_rate = (group_data['pred'] == 1).mean() if 1 in X_tmp['pred'].values else (group_data['pred'] == X_tmp['pred'].unique()[0]).mean()
+                    metrics_fair.append({'Group': str(g), 'Selection Rate': pos_rate})
+                
+                fair_df = pd.DataFrame(metrics_fair)
+                
+                col_fair1, col_fair2 = st.columns([1, 2])
+                with col_fair1:
+                    st.dataframe(fair_df, use_container_width=True, hide_index=True)
+                    
+                    # Calculate Disparate Impact Ratio
+                    max_rate = fair_df['Selection Rate'].max()
+                    min_rate = fair_df['Selection Rate'].min()
+                    di_ratio = min_rate / max_rate if max_rate > 0 else 1.0
+                    
+                    st.metric("Disparate Impact Ratio", f"{di_ratio:.2f}", 
+                              help="Ratio of min selection rate to max selection rate. Ideal: > 0.8 (Four-Fifths Rule).")
+                    
+                    if di_ratio < 0.8:
+                        st.error("⚠️ BIAS DETECTED: Disparate Impact ratio is below 0.8 threshold.")
+                    else:
+                        st.success("✅ COMPLIANCE: No significant disparate impact detected.")
+                
+                with col_fair2:
+                    fig_fair, ax_fair = plt.subplots(figsize=(6, 3))
+                    sns.barplot(data=fair_df, x='Group', y='Selection Rate', palette='viridis', ax=ax_fair)
+                    ax_fair.set_title('Group Selection Rates')
+                    ax_fair.axhline(0.8, color='red', linestyle='--', label='80% Threshold')
+                    plt.tight_layout()
+                    st.pyplot(fig_fair)
+            else:
+                st.info("Insufficient variance in selected feature for fairness audit.")
+        
+        st.markdown('</div>', unsafe_allow_html=True)
 
 else:
     # Welcome screen
-    st.markdown("""
-    <div style='text-align: center; padding: 3rem;'>
-        <h2>👋 Welcome to Explainable AI Dashboard!</h2>
-        <p style='font-size: 1.2rem; color: #666; margin-top: 1rem;'>
-            Get started by uploading a CSV file from the sidebar and training your model.
-        </p>
-        <br>
-        <p style='color: #888;'>
-            This dashboard helps you understand <b>how</b> and <b>why</b> your machine learning model makes predictions.<br>
-            Explore feature importance, SHAP values, and LIME explanations to gain deep insights.
+    domain_class = f"domain-{st.session_state.domain}"
+    st.markdown(f"""
+    <div class="description-box animate-fade {domain_class}">
+        <h1 style='color: white;'>🔍 AI Audit & Explainability Governance</h1>
+        <p style='font-size: 1.1rem; margin-top: 0.5rem; opacity: 0.9;'>
+            Deploying transparency. This dashboard serves as a mission-critical governance protocol 
+            for auditing machine learning models in <strong>{st.session_state.domain}</strong> operations.
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -1576,31 +1917,30 @@ else:
     
     # Feature highlights
     col1, col2, col3 = st.columns(3)
-    
     with col1:
         st.markdown("""
-        <div style='text-align: center; padding: 2rem; background: #f0f2f6; border-radius: 10px;'>
-            <h2>🎯</h2>
-            <h3>Feature Importance</h3>
-            <p>Discover which features matter most in your model's decisions</p>
+        <div class="data-summary-box animate-fade" style="height: 100%;">
+            <h2 style='color: white;'>🎯</h2>
+            <h3 style='color: white;'>Global Auditing</h3>
+            <p style='color: white;'>Discover longitudinal feature influence and governance metrics.</p>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
         st.markdown("""
-        <div style='text-align: center; padding: 2rem; background: #f0f2f6; border-radius: 10px;'>
-            <h2>🔍</h2>
-            <h3>SHAP & LIME</h3>
-            <p>Compare two powerful explainability techniques side-by-side</p>
+        <div class="data-summary-box animate-fade" style="height: 100%;">
+            <h2 style='color: white;'>🔍</h2>
+            <h3 style='color: white;'>Local Verification</h3>
+            <p style='color: white;'>Verify specific operational decisions via LIME and SHAP signatures.</p>
         </div>
         """, unsafe_allow_html=True)
     
     with col3:
         st.markdown("""
-        <div style='text-align: center; padding: 2rem; background: #f0f2f6; border-radius: 10px;'>
-            <h2>📊</h2>
-            <h3>Visual Analysis</h3>
-            <p>Interactive charts and detailed performance metrics</p>
+        <div class="data-summary-box animate-fade" style="height: 100%;">
+            <h2 style='color: white;'>📊</h2>
+            <h3 style='color: white;'>Simulation</h3>
+            <p style='color: white;'>Perform counterfactual reasoning to probe model decision boundaries.</p>
         </div>
         """, unsafe_allow_html=True)
     
