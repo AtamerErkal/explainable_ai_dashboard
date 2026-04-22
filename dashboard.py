@@ -59,9 +59,9 @@ st.markdown("""
     /* Premium Card Design */
     .premium-card {
         background: white;
-        padding: 1rem;
+        padding: 1.25rem;
         border-radius: 12px;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
         border: 1px solid #f1f5f9;
         margin-bottom: 1.25rem;
         transition: transform 0.3s ease;
@@ -139,12 +139,13 @@ st.markdown("""
     
     .explanation-box {
         background: #f0fdf4;
-        padding: 0.6rem;
-        border-radius: 8px;
-        border-left: 4px solid #22c55e;
-        margin: 0.5rem 0;
-        font-size: 0.8rem;
+        padding: 0.75rem;
+        border-radius: 12px;
+        border-left: 5px solid #22c55e;
+        margin: 0.75rem 0;
+        font-size: 0.85rem;
         color: #14532d !important;
+        line-height: 1.5;
     }
 
     /* Workflow Step Cards */
@@ -288,22 +289,8 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Main header
-st.markdown('<p class="main-header">🔍 Explainable AI Dashboard</p>', unsafe_allow_html=True)
-
-# Description
-st.markdown("""
-<div class="description-box animate-fade">
-    <h3>🎯 AI Explainability & Governance Protocol</h3>
-    <p style='font-size: 1.1rem; margin-top: 1rem; opacity: 0.9;'>
-        A comprehensive framework for auditing machine learning models. 
-        Gain transparency through <strong>SHAP, LIME, and Counterfactual analysis</strong>. 
-        Ensure trust, compliance, and deep clinical/operational insights.
-    </p>
-</div>
-""", unsafe_allow_html=True)
-
-st.markdown("---")
+# Main Title
+st.markdown('<div class="main-header">🔍 AI Explainability Governance Dashboard</div>', unsafe_allow_html=True)
 
 # Initialize session state
 if 'model' not in st.session_state:
@@ -1981,10 +1968,11 @@ else:
     domain_class = f"domain-{st.session_state.domain}"
     st.markdown(f"""
     <div class="description-box animate-fade {domain_class}">
-        <h1 style='color: white;'>🔍 AI Audit & Explainability Governance</h1>
-        <p style='font-size: 1.1rem; margin-top: 0.5rem; opacity: 0.9;'>
-            Deploying transparency. This dashboard serves as a mission-critical governance protocol 
-            for auditing machine learning models in <strong>{st.session_state.domain}</strong> operations.
+        <h1 style='color: white; margin-bottom: 0px;'>🛡️ Operational Protocol: {st.session_state.domain}</h1>
+        <p style='font-size: 1.1rem; margin-top: 10px; opacity: 0.9; max-width: 800px; margin-left: auto; margin-right: auto;'>
+            A high-fidelity framework for auditing machine learning models. Gain transparency through 
+            <strong>SHAP</strong>, <strong>LIME</strong>, and <strong>Counterfactual</strong> signatures. 
+            Ensuring precision governance and algorithmic trust.
         </p>
     </div>
     """, unsafe_allow_html=True)
