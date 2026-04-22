@@ -410,13 +410,20 @@ with st.sidebar:
                     # Store original X for later display
                     X_original = X.copy()
                     
-                    # Robust numeric conversion (Fix for Churn-style data where numbers are strings)
+                    # Aggressive numeric cleansing (Fix for hidden spaces/symbols in Churn data)
                     for col in X.columns:
-                        converted = pd.to_numeric(X[col], errors='coerce')
-                        if converted.notnull().sum() > (len(X) * 0.5): # If >50% can be numeric, it IS numeric
-                            X[col] = converted
+                        if X[col].dtype == 'object':
+                            # Strip common junk characters that break numeric conversion
+                            cleaned_col = X[col].astype(str).str.replace('$', '', regex=False).str.replace(',', '', regex=False).str.strip()
+                            # Replace empty strings with NaN
+                            cleaned_col = cleaned_col.replace('', np.nan)
+                            
+                            # Attempt final conversion
+                            converted = pd.to_numeric(cleaned_col, errors='coerce')
+                            if not converted.isna().all(): # If at least some values are numbers
+                                X[col] = converted
                     
-                    # Handle missing values after conversion
+                    # Handle missing values after conversion (Fill NaNs with mean)
                     X = X.fillna(X.mean(numeric_only=True))
                     for col in X.select_dtypes(include=['object']).columns:
                         X[col] = X[col].fillna(X[col].mode()[0] if not X[col].mode().empty else 'missing')
