@@ -819,7 +819,7 @@ if st.session_state.model is not None:
                 missing_data = missing_data[missing_data['Missing Count'] > 0]
                 if len(missing_data) > 0:
                     st.dataframe(missing_data, use_container_width=True, hide_index=True)
-            else:
+                else:
                     st.success("✅ No missing values found!")
         
         # Raw Data Explorer
