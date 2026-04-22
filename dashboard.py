@@ -948,7 +948,13 @@ if st.session_state.model is not None:
     with col_diag1:
         st.markdown('<div class="premium-card animate-fade">', unsafe_allow_html=True)
         st.markdown("### 📊 Confusion Matrix")
-        st.markdown('<div class="info-box">Ratio of correct predictions.</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="info-box">
+            <b>Truth Table:</b> Shows actual vs predicted counts. 
+            Diagonal boxes (Top-Left, Bottom-Right) are <b>Correct</b> decisions. 
+            Off-diagonal boxes represent <b>Type I / Type II errors</b> (Mistakes).
+        </div>
+        """, unsafe_allow_html=True)
         
         cm = confusion_matrix(st.session_state.y_test, y_pred)
         class_labels = st.session_state.class_names if st.session_state.class_names is not None else [f"Class {i}" for i in range(len(np.unique(st.session_state.y_test)))]
@@ -956,14 +962,22 @@ if st.session_state.model is not None:
         fig, ax = plt.subplots(figsize=(5, 4))
         sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax, cbar=False,
                     xticklabels=class_labels, yticklabels=class_labels)
+        ax.set_xlabel("Predicted")
+        ax.set_ylabel("Actual")
         plt.tight_layout()
         st.pyplot(fig)
         st.markdown('</div>', unsafe_allow_html=True)
 
     with col_diag2:
         st.markdown('<div class="premium-card animate-fade">', unsafe_allow_html=True)
-        st.markdown("### 📈 ROC Curve")
-        st.markdown('<div class="info-box">Separation power.</div>', unsafe_allow_html=True)
+        st.markdown("### 📈 Separation Power (ROC)")
+        st.markdown("""
+        <div class="info-box">
+            <b>Model Precision:</b> Visualizes the ability to distinguish between classes. 
+            The higher the curve (Area Under Curve - <b>AUC</b>), the better. 
+            <b>AUC > 0.8:</b> Strong separation. <b>0.5:</b> Random guessing.
+        </div>
+        """, unsafe_allow_html=True)
         try:
             y_prob = st.session_state.model.predict_proba(st.session_state.X_test)
             if len(st.session_state.class_names) == 2:
@@ -972,73 +986,48 @@ if st.session_state.model is not None:
                 fig_roc, ax_roc = plt.subplots(figsize=(5, 4))
                 ax_roc.plot(fpr, tpr, color='#6366f1', lw=2, label=f'AUC={roc_auc:.2f}')
                 ax_roc.plot([0, 1], [0, 1], color='#cbd5e1', lw=1, linestyle='--')
+                ax_roc.set_xlabel("False Positive Rate")
+                ax_roc.set_ylabel("True Positive Rate")
                 ax_roc.legend(loc="lower right")
                 plt.tight_layout()
                 st.pyplot(fig_roc)
             else:
                 macro_auc = roc_auc_score(st.session_state.y_test, y_prob, multi_class='ovr', average='macro')
-                st.metric("Macro AUC", f"{macro_auc:.3f}")
+                st.metric("Macro AUC Score", f"{macro_auc:.3f}")
+                st.info("Visual ROC support for Multi-class is in the detailed metrics above.")
         except:
-            st.warning("ROC Error")
+            st.warning("ROC Visualization Unavailable for this model.")
         st.markdown('</div>', unsafe_allow_html=True)
 
     with col_diag3:
         st.markdown('<div class="premium-card animate-fade">', unsafe_allow_html=True)
-        st.markdown("### 🔥 Correlation")
-        st.markdown('<div class="info-box">Feature relationships.</div>', unsafe_allow_html=True)
+        st.markdown("### 🔥 Multi-Feature Correlation")
+        st.markdown("""
+        <div class="info-box">
+            <b>Feature Relationships:</b> Measures linear dependency. 
+            Values near <b>1</b> (Red) mean strong positive links. 
+            Near <b>-1</b> (Blue) mean inverse links. 
+            <i>Example: In churn data, Tenure and Contract type often correlate highly.</i>
+        </div>
+        """, unsafe_allow_html=True)
         corr_matrix = st.session_state.X_train.corr()
-        fig_size = max(5, len(corr_matrix) * 0.4)
+        fig_size = max(5, len(corr_matrix) * 0.5)
         fig, ax = plt.subplots(figsize=(fig_size, fig_size))
-        sns.heatmap(corr_matrix, cmap='coolwarm', ax=ax, cbar=False)
+        sns.heatmap(corr_matrix, annot=True, fmt=".2f", cmap='coolwarm', ax=ax, cbar=False, annot_kws={"size": 8})
+        plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
         plt.tight_layout()
         st.pyplot(fig)
         st.markdown('</div>', unsafe_allow_html=True)
-    
-    try:
-        y_prob = st.session_state.model.predict_proba(st.session_state.X_test)
-        
-        if len(st.session_state.class_names) == 2:
-            # Binary ROC
-            fpr, tpr, _ = roc_curve(st.session_state.y_test, y_prob[:, 1])
-            roc_auc = auc(fpr, tpr)
-            
-            fig_roc, ax_roc = plt.subplots(figsize=(8, 4))
-            ax_roc.plot(fpr, tpr, color='#6366f1', lw=3, label=f'ROC curve (AUC = {roc_auc:.3f})')
-            ax_roc.plot([0, 1], [0, 1], color='#cbd5e1', lw=2, linestyle='--')
-            ax_roc.set_xlim([0.0, 1.0])
-            ax_roc.set_ylim([0.0, 1.05])
-            ax_roc.set_xlabel('False Positive Rate (1 - Specificity)')
-            ax_roc.set_ylabel('True Positive Rate (Sensitivity)')
-            ax_roc.set_title('Receiver Operating Characteristic (ROC)')
-            ax_roc.legend(loc="lower right")
-            ax_roc.grid(alpha=0.2)
-            plt.tight_layout()
-            st.pyplot(fig_roc)
-            
-            st.markdown(f"""
-            <div class="explanation-box">
-                <strong>📈 Performance Verdict:</strong> 
-                The model achieved an AUC of <b>{roc_auc:.3f}</b>. 
-                {"This indicates excellent separation capability." if roc_auc > 0.8 else "This indicates moderate predictive power." if roc_auc > 0.7 else "Further tuning may be required to improve separation."}
-            </div>
-            """, unsafe_allow_html=True)
-        else:
-            macro_auc = roc_auc_score(st.session_state.y_test, y_prob, multi_class='ovr', average='macro')
-            st.info(f"📊 Multiclass detected. Macro-Average AUC: **{macro_auc:.4f}**")
-    except Exception as e:
-        st.warning(f"Could not compute ROC: {str(e)}")
-        
-    st.markdown('</div>', unsafe_allow_html=True)
-    
     st.markdown("---")
     
     # Tabs for different analyses
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
         "🎯 Feature Importance",
         "🔵 SHAP Analysis",
         "🟢 LIME Analysis",
         "⚖️ SHAP vs LIME",
-        "🔀 Counterfactual"
+        "🔀 Counterfactual",
+        "⚖️ Bias Audit"
     ])
     
     # Tab 1: Feature Importance
