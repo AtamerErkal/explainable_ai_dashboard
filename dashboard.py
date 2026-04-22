@@ -409,9 +409,8 @@ with st.sidebar:
                     st.session_state.X_test_original = X_test_orig
                     
                     st.success("✅ Model trained successfully!")
-                        
-                    except Exception as e:
-                        st.error(f"❌ Error: {str(e)}")
+                except Exception as e:
+                    st.error(f"❌ Error: {str(e)}")
             
             # PDF Export block
             st.markdown("---")
