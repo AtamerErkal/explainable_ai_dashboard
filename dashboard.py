@@ -4,6 +4,9 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
+import warnings
+import datetime
+import tempfile
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
@@ -12,7 +15,12 @@ from sklearn.metrics import (accuracy_score, classification_report, confusion_ma
                             f1_score, recall_score, precision_score, roc_curve, auc, roc_auc_score)
 import shap
 from lime import lime_tabular
-import warnings
+
+try:
+    from fpdf import FPDF
+except ImportError:
+    pass
+
 warnings.filterwarnings('ignore')
 
 # Page configuration
@@ -506,14 +514,7 @@ with st.sidebar:
                 if st.session_state.model is not None:
                     with st.spinner("Generating PDF..."):
                         try:
-                            from fpdf import FPDF
-                            import datetime
-                            import matplotlib.pyplot as plt
-                            import shap
-                            from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
-                            import seaborn as sns
-                            import numpy as np
-                            import tempfile
+                            # Standard imports are already at the top
                             
                             class PDFReport(FPDF):
                                 def header(self):
