@@ -232,27 +232,37 @@ st.markdown("""
         color: white;
     }
 
-    /* Tabs */
+    /* Modern Segmented Tabs */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
+        gap: 12px;
         background-color: #f1f5f9;
-        padding: 8px;
-        border-radius: 16px;
+        padding: 10px;
+        border-radius: 18px;
+        border: 1px solid #e2e8f0;
     }
 
     .stTabs [data-baseweb="tab"] {
-        height: 45px;
+        height: 50px;
+        padding: 0 20px !important;
         border-radius: 12px;
         background-color: transparent;
-        border: none;
+        border: 1px solid transparent !important;
         color: #64748b;
         font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .stTabs [data-baseweb="tab"]:hover {
+        background-color: rgba(99, 102, 241, 0.05);
+        color: #6366f1;
     }
 
     .stTabs [aria-selected="true"] {
         background-color: white !important;
         color: #6366f1 !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+        transform: scale(1.02);
     }
 
     /* Tooltip styles */
@@ -1019,7 +1029,6 @@ if st.session_state.model is not None:
         st.pyplot(fig)
         st.markdown('</div>', unsafe_allow_html=True)
     st.markdown("---")
-    
     # Tabs for different analyses
     tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
         "🎯 Feature Importance",
@@ -1033,8 +1042,13 @@ if st.session_state.model is not None:
     # Tab 1: Feature Importance
     with tab1:
         st.markdown('<div class="premium-card animate-fade">', unsafe_allow_html=True)
-        st.markdown("### 📊 Global Feature Governance")
-        st.markdown('<div class="info-box">Analyzing the global influence of features across the entire operational lifecycle. Critical for compliance and auditing.</div>', unsafe_allow_html=True)
+        st.markdown("### 🎯 Global Feature Influence")
+        st.markdown("""
+        <div class="info-box">
+            <b>Basitçe Nedir?</b> Modelin genel olarak kararlarını verirken hangi verilere en çok "sadık" olduğunu gösterir. 
+            Çizgi ne kadar uzunsa, o değişken model için o kadar kritiktir.
+        </div>
+        """, unsafe_allow_html=True)
         
         if hasattr(st.session_state.model, 'feature_importances_'):
             # Get feature importances
@@ -1082,8 +1096,14 @@ if st.session_state.model is not None:
     # Tab 2: SHAP Analysis
     with tab2:
         st.markdown('<div class="premium-card animate-fade">', unsafe_allow_html=True)
-        st.markdown("### 🔵 Local & Global Impact (SHAP)")
-        st.markdown('<div class="info-box">SHAP (SHapley Additive exPlanations) leverage game theory to ensure mathematically consistent contribution scores for every prediction.</div>', unsafe_allow_html=True)
+        st.markdown("### 🔵 SHAP Value Decomposition")
+        st.markdown("""
+        <div class="info-box">
+            <b>Basitçe Nedir?</b> "Neden bu sonuç çıktı?" sorusunun matematiksel cevabıdır. 
+            Kırmızı çubuklar sonucu <b>ARTI</b> yönde, mavi çubuklar <b>EKSİ</b> yönde ne kadar ittiğini gösterir. 
+            <i>Oyun teorisine dayalı en güvenilir açıklama yöntemidir.</i>
+        </div>
+        """, unsafe_allow_html=True)
         
         with st.spinner("🔄 Computing SHAP values..."):
             try:
@@ -1347,8 +1367,13 @@ if st.session_state.model is not None:
     # Tab 3: LIME Analysis
     with tab3:
         st.markdown('<div class="premium-card animate-fade">', unsafe_allow_html=True)
-        st.markdown("### 🟢 Precision Local Audit (LIME)")
-        st.markdown('<div class="info-box">LIME provides granular insights into specific operational decisions. Ideal for troubleshooting individual model drifts or edge cases.</div>', unsafe_allow_html=True)
+        st.markdown("### 🟢 LIME Local Explanations")
+        st.markdown("""
+        <div class="info-box">
+            <b>Basitçe Nedir?</b> Modelin karmaşık mantığını o anlık "yerelleştirerek" basitleştirir. 
+            Modelin çok karmaşık olduğu durumlarda bile "O saniye ne düşündüğünü" anlamamıza yardımcı olur.
+        </div>
+        """, unsafe_allow_html=True)
         
         sample_idx_lime = st.slider(
             "Select test sample to analyze",
@@ -1488,8 +1513,14 @@ if st.session_state.model is not None:
     # Tab 4: Comparison
     with tab4:
         st.markdown('<div class="premium-card animate-fade">', unsafe_allow_html=True)
-        st.markdown("### ⚖️ Cross-Audit Protocol (SHAP vs LIME)")
-        st.markdown('<div class="info-box">Comparing global theoretical contributions against local surrogate estimations to ensure absolute model alignment.</div>', unsafe_allow_html=True)
+        st.markdown("### ⚖️ Cross-Validation: SHAP vs LIME")
+        st.markdown("""
+        <div class="info-box">
+            <b>Basitçe Nedir?</b> İki farklı açıklama modelini karşılaştırır. 
+            Eğer ikisi de benzer sonuçlar veriyorsa, modelin kararına olan güvenimiz artar. 
+            <i>Çelişki varsa, modelin o veri üzerinde kararsız olduğunu anlarız.</i>
+        </div>
+        """, unsafe_allow_html=True)
         
         comparison_idx = st.slider(
             "Select sample for comparison",
@@ -1722,7 +1753,6 @@ if st.session_state.model is not None:
     # TAB 5: Counterfactual Analysis
     with tab5:
         st.markdown('<div class="premium-card animate-fade">', unsafe_allow_html=True)
-        st.markdown("### 🔀 Counterfactual Reasoning (DiCE)")
         st.markdown('<div class="info-box">Dynamic simulation of "What-If" scenarios to determine the minimum feature perturbations required to traverse model decision boundaries.</div>', unsafe_allow_html=True)
         cf_idx = st.slider("Select base instance", 0, len(st.session_state.X_test)-1, 0, key="cf_sl")
         base_row = st.session_state.X_test.iloc[cf_idx].copy()
