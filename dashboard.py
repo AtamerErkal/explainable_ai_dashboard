@@ -1045,8 +1045,8 @@ if st.session_state.model is not None:
         st.markdown("### 🎯 Global Feature Influence")
         st.markdown("""
         <div class="info-box">
-            <b>Basitçe Nedir?</b> Modelin genel olarak kararlarını verirken hangi verilere en çok "sadık" olduğunu gösterir. 
-            Çizgi ne kadar uzunsa, o değişken model için o kadar kritiktir.
+            <b>Mission Briefing:</b> Identifies which variables the model prioritizes across all decisions. 
+            The longer the bar, the more 'loyal' the model is to that specific feature when making a choice.
         </div>
         """, unsafe_allow_html=True)
         
@@ -1099,9 +1099,9 @@ if st.session_state.model is not None:
         st.markdown("### 🔵 SHAP Value Decomposition")
         st.markdown("""
         <div class="info-box">
-            <b>Basitçe Nedir?</b> "Neden bu sonuç çıktı?" sorusunun matematiksel cevabıdır. 
-            Kırmızı çubuklar sonucu <b>ARTI</b> yönde, mavi çubuklar <b>EKSİ</b> yönde ne kadar ittiğini gösterir. 
-            <i>Oyun teorisine dayalı en güvenilir açıklama yöntemidir.</i>
+            <b>Mission Briefing:</b> Mathematical breakdown of "Why this specific result?". 
+            Red bars push the outcome <b>POSITIVE</b>, while blue bars pull it <b>NEGATIVE</b>. 
+            <i>Powered by Game Theory for absolute consistency.</i>
         </div>
         """, unsafe_allow_html=True)
         
@@ -1370,8 +1370,8 @@ if st.session_state.model is not None:
         st.markdown("### 🟢 LIME Local Explanations")
         st.markdown("""
         <div class="info-box">
-            <b>Basitçe Nedir?</b> Modelin karmaşık mantığını o anlık "yerelleştirerek" basitleştirir. 
-            Modelin çok karmaşık olduğu durumlarda bile "O saniye ne düşündüğünü" anlamamıza yardımcı olur.
+            <b>Mission Briefing:</b> Simplifies complex neural logic by "localizing" it for a single instance. 
+            Helps verify "What was the model thinking at this exact second?" for specific cases.
         </div>
         """, unsafe_allow_html=True)
         
@@ -1516,9 +1516,9 @@ if st.session_state.model is not None:
         st.markdown("### ⚖️ Cross-Validation: SHAP vs LIME")
         st.markdown("""
         <div class="info-box">
-            <b>Basitçe Nedir?</b> İki farklı açıklama modelini karşılaştırır. 
-            Eğer ikisi de benzer sonuçlar veriyorsa, modelin kararına olan güvenimiz artar. 
-            <i>Çelişki varsa, modelin o veri üzerinde kararsız olduğunu anlarız.</i>
+            <b>Mission Briefing:</b> Compares two different auditing methods. 
+            Alignment between both methods increases decision confidence. 
+            <i>Contradictions may signal model uncertainty on that specific data point.</i>
         </div>
         """, unsafe_allow_html=True)
         
@@ -1756,8 +1756,8 @@ if st.session_state.model is not None:
         st.markdown("### 🔀 What-If Counterfactual Reasoning")
         st.markdown("""
         <div class="info-box">
-            <b>Basitçe Nedir?</b> "Sonucu değiştirmek için ne yapmalı?" sorusuna yanıt verir. 
-            Algoritmanın kararını değiştirecek en küçük değişikliği bularak size bir yol haritası sunar.
+            <b>Mission Briefing:</b> Answers "What needs to change to reverse this result?". 
+            Provides a roadmap by finding the smallest feature tweaks required to flip the AI's decision.
         </div>
         """, unsafe_allow_html=True)
         cf_idx = st.slider("Select base instance", 0, len(st.session_state.X_test)-1, 0, key="cf_sl")
@@ -1941,8 +1941,8 @@ if st.session_state.model is not None:
         st.markdown("### ⚖️ Algorithmic Fairness Protocol")
         st.markdown("""
         <div class="info-box">
-            <b>Basitçe Nedir?</b> Modelin ahlaki ve yasal denetimidir. 
-            Modelin belirli gruplara (Örn: Cinsiyet, Yaş Grupları vb.) karşı sistematik bir haksızlık yapıp yapmadığını ölçer.
+            <b>Mission Briefing:</b> Moral and regulatory audit of the model. 
+            Measures if the AI exhibits systematic unfairness towards protected groups (e.g., Gender, Age, or Region).
         </div>
         """, unsafe_allow_html=True)
         
