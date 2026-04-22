@@ -46,12 +46,12 @@ st.markdown("""
     .domain-General { border-top: 5px solid #6366f1; }
 
     .main-header {
-        font-size: 2.5rem;
+        font-size: 2rem;
         font-weight: 800;
         text-align: center;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
         letter-spacing: -0.05em;
-        background: linear-gradient(to right, #1e293b, #334155);
+        background: linear-gradient(to right, #1e293b, #475569);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
@@ -1976,8 +1976,6 @@ else:
         </p>
     </div>
     """, unsafe_allow_html=True)
-    
-    st.markdown("---")
     
     # Feature highlights
     col1, col2, col3 = st.columns(3)
