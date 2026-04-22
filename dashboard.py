@@ -819,8 +819,24 @@ if st.session_state.model is not None:
                 missing_data = missing_data[missing_data['Missing Count'] > 0]
                 if len(missing_data) > 0:
                     st.dataframe(missing_data, use_container_width=True, hide_index=True)
-                else:
+            else:
                     st.success("✅ No missing values found!")
+        
+        # Raw Data Explorer
+        with st.expander("📄 Raw Mission Data Explorer"):
+            st.markdown("### Operational Dataset (Raw View)")
+            st.info("High-fidelity view of the mission dataset. Use the search and filter tools for granular investigation.")
+            st.dataframe(df_summary, use_container_width=True)
+            
+            # Download capability
+            csv_data = df_summary.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                label="📥 Download Dataset (CSV)",
+                data=csv_data,
+                file_name=f"{st.session_state.domain}_source_intelligence.csv",
+                mime='text/csv',
+                use_container_width=True
+            )
     
     st.markdown("---")
     
