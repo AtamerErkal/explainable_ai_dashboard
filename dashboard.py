@@ -349,19 +349,21 @@ with st.sidebar:
         # Sample data loader
         st.markdown("**Domain Samples**")
         if st.button("Load Domain Sample Data", use_container_width=True):
+            # Get current directory to build absolute paths
+            base_dir = os.path.dirname(__file__)
             sample_files = {
-                "Healthcare": "sample_data/healthcare_data.csv",
-                "Defence": "sample_data/defence_data.csv",
-                "Finance": "sample_data/finance_data.csv",
-                "General": "sample_data/general_data.csv"
+                "Healthcare": os.path.join(base_dir, "sample_data", "healthcare_data.csv"),
+                "Defence": os.path.join(base_dir, "sample_data", "defence_data.csv"),
+                "Finance": os.path.join(base_dir, "sample_data", "finance_data.csv"),
+                "General": os.path.join(base_dir, "sample_data", "general_data.csv")
             }
             file_path = sample_files.get(st.session_state.domain)
             if file_path and os.path.exists(file_path):
                 df = pd.read_csv(file_path)
                 st.session_state.original_df = df.copy()
-                st.success(f"✅ Context: {st.session_state.domain}")
+                st.success(f"✅ Protocol Initialized: {st.session_state.domain}")
             else:
-                st.warning("Sample not found.")
+                st.warning(f"⚠️ Intelligence Not Found at: {file_path}")
 
         st.markdown("**Manual Upload**")
         uploaded_file = st.file_uploader("Select CSV", type=['csv'])
