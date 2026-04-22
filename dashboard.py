@@ -88,7 +88,7 @@ st.markdown("""
     /* Metric & Summary Boxes */
     .metric-box, .data-summary-box {
         background: white;
-        padding: 1rem;
+        padding: 1.25rem;
         border-radius: 12px;
         text-align: center;
         border: 1px solid #e2e8f0;
@@ -96,13 +96,17 @@ st.markdown("""
         transition: all 0.3s ease;
     }
     
+    .data-summary-box h2, .data-summary-box h3, .data-summary-box p {
+        color: #1e293b !important;
+    }
+
     .metric-box:hover, .data-summary-box:hover {
         border-color: #6366f1;
         box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.2);
     }
 
     .metric-title {
-        color: #64748b;
+        color: #475569;
         font-size: 0.7rem;
         font-weight: 600;
         text-transform: uppercase;
@@ -1919,27 +1923,27 @@ else:
     with col1:
         st.markdown("""
         <div class="data-summary-box animate-fade" style="height: 100%;">
-            <h2 style='color: white;'>🎯</h2>
-            <h3 style='color: white;'>Global Auditing</h3>
-            <p style='color: white;'>Discover longitudinal feature influence and governance metrics.</p>
+            <h2 style='margin-bottom: 0px;'>🎯</h2>
+            <h3>Global Auditing</h3>
+            <p>Discover longitudinal feature influence and governance metrics.</p>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
         st.markdown("""
         <div class="data-summary-box animate-fade" style="height: 100%;">
-            <h2 style='color: white;'>🔍</h2>
-            <h3 style='color: white;'>Local Verification</h3>
-            <p style='color: white;'>Verify specific operational decisions via LIME and SHAP signatures.</p>
+            <h2 style='margin-bottom: 0px;'>🔍</h2>
+            <h3>Local Verification</h3>
+            <p>Verify specific operational decisions via LIME and SHAP signatures.</p>
         </div>
         """, unsafe_allow_html=True)
     
     with col3:
         st.markdown("""
         <div class="data-summary-box animate-fade" style="height: 100%;">
-            <h2 style='color: white;'>📊</h2>
-            <h3 style='color: white;'>Simulation</h3>
-            <p style='color: white;'>Perform counterfactual reasoning to probe model decision boundaries.</p>
+            <h2 style='margin-bottom: 0px;'>📊</h2>
+            <h3>Simulation</h3>
+            <p>Perform counterfactual reasoning to probe model decision boundaries.</p>
         </div>
         """, unsafe_allow_html=True)
     
@@ -1967,8 +1971,8 @@ else:
         st.markdown("""
         **Step 3: Train & Analyze** 🎯
         - Adjust hyperparameters if needed
-        - Click "Train Model"
-        - Explore results across 4 analysis tabs
+        - Click "EXECUTE TRAINING"
+        - Explore results across 6 analysis tabs
         
         **Step 4: Interpret Results** 💡
         - Review model performance metrics
