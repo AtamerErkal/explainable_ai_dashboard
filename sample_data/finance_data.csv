@@ -1,0 +1,201 @@
+Annual_Income,Credit_Score,Debt_Ratio,Loan_Amount,Employment_Years,Education,Loan_Status
+141958,715,0.64,47808,37,High School,Approved
+166867,546,0.03,93464,36,Bachelor,Approved
+151932,738,0.59,58871,10,Master,Approved
+123694,502,0.94,24198,35,Master,Approved
+139879,483,0.58,24758,12,Master,Rejected
+130268,422,0.39,20254,2,PhD,Rejected
+74886,700,0.64,49238,32,Master,Approved
+157337,593,0.46,6252,5,Bachelor,Approved
+188266,579,0.55,44764,9,PhD,Approved
+107498,497,0.94,82709,4,Bachelor,Rejected
+132727,810,0.39,42441,22,High School,Approved
+146324,443,0.96,97234,9,High School,Rejected
+195203,500,0.91,58682,1,High School,Approved
+36023,423,0.2,64494,12,High School,Rejected
+61090,486,0.07,86317,39,Bachelor,Approved
+87221,625,0.1,70215,1,PhD,Rejected
+84820,763,0.02,83587,19,PhD,Approved
+20769,648,0.09,11949,0,Master,Rejected
+79735,702,0.68,60393,36,Bachelor,Approved
+84925,645,0.07,78553,8,High School,Rejected
+25311,810,0.32,11941,16,Bachelor,Rejected
+123355,446,0.84,30934,8,Master,Rejected
+105305,447,0.02,28386,10,Master,Rejected
+179765,788,0.81,66886,14,Bachelor,Approved
+150608,637,0.28,80745,23,Bachelor,Approved
+176730,772,0.12,88251,37,Bachelor,Approved
+104478,450,0.7,99456,34,PhD,Rejected
+142537,714,0.63,58413,29,High School,Approved
+169503,597,0.88,61800,30,Bachelor,Approved
+150523,562,0.74,47318,4,Bachelor,Rejected
+22747,443,0.8,75173,13,Bachelor,Rejected
+143855,645,0.28,75390,10,Master,Approved
+85725,301,0.18,57329,8,Master,Rejected
+149981,603,0.75,48088,33,PhD,Approved
+104654,553,0.81,44811,11,High School,Rejected
+186845,752,0.99,60479,34,PhD,Approved
+139346,336,0.41,90392,34,High School,Approved
+87435,459,0.37,92369,0,Master,Rejected
+76886,308,0.78,24963,39,Master,Rejected
+86803,532,0.34,60123,21,Master,Rejected
+51551,398,0.93,97705,28,PhD,Rejected
+136216,507,0.86,78477,7,Bachelor,Rejected
+31394,430,0.43,19388,10,Bachelor,Rejected
+89092,703,0.75,10569,36,Master,Approved
+23890,451,0.75,74836,13,Bachelor,Rejected
+61606,353,0.1,41586,29,Bachelor,Rejected
+107313,419,0.9,17015,34,PhD,Rejected
+161699,719,0.51,50002,20,High School,Approved
+28792,721,0.83,11254,36,Master,Rejected
+194073,403,0.32,22144,4,Master,Approved
+174969,553,0.9,29214,18,PhD,Approved
+88148,526,0.39,85719,13,PhD,Rejected
+144243,411,0.01,76774,25,Bachelor,Approved
+140174,809,0.91,11090,3,Master,Approved
+174555,772,0.09,16637,24,High School,Approved
+144358,398,0.32,27415,24,PhD,Approved
+68555,452,0.95,29071,17,High School,Rejected
+37159,637,0.95,63243,39,High School,Rejected
+130510,462,0.57,46240,7,Master,Rejected
+126530,460,0.63,88807,38,Master,Approved
+100077,697,0.45,38434,39,PhD,Approved
+55920,576,0.29,74724,13,Master,Rejected
+39457,803,0.33,80697,31,Master,Approved
+98953,691,0.67,33732,37,Master,Approved
+72995,434,0.75,16314,32,High School,Rejected
+191829,494,0.79,28954,22,PhD,Approved
+29692,700,0.79,62108,14,Bachelor,Rejected
+196830,332,0.09,92044,32,High School,Approved
+57065,759,0.49,92505,24,Master,Approved
+119299,769,0.06,41668,16,High School,Approved
+183678,674,0.55,28061,32,Master,Approved
+31534,321,0.44,84252,1,Master,Rejected
+60397,337,0.89,44749,13,High School,Rejected
+111387,529,0.35,21907,39,PhD,Approved
+21016,664,0.12,23777,39,Master,Approved
+75591,737,0.14,98229,38,PhD,Approved
+43247,582,0.76,56745,5,Bachelor,Rejected
+44300,326,0.62,96865,5,Master,Rejected
+102798,525,0.1,86818,2,PhD,Rejected
+29268,576,0.08,28624,6,PhD,Rejected
+106807,583,0.7,28321,7,Bachelor,Rejected
+32185,780,0.07,15488,14,PhD,Rejected
+190171,752,0.82,27574,28,PhD,Approved
+159643,815,0.71,10240,32,Bachelor,Approved
+58044,846,0.08,48221,29,Master,Approved
+71214,491,0.08,15478,38,PhD,Approved
+134752,348,0.99,60645,26,PhD,Rejected
+68984,811,0.37,24262,35,PhD,Approved
+60774,316,0.37,57796,28,High School,Rejected
+22568,471,0.81,9432,37,Bachelor,Rejected
+140151,519,0.95,69291,32,High School,Approved
+153767,457,0.99,84104,36,Bachelor,Approved
+144375,776,0.75,64399,26,Master,Approved
+199262,345,0.38,84714,32,Master,Approved
+156330,672,0.08,55428,3,PhD,Approved
+59504,817,0.78,92731,21,Bachelor,Approved
+184231,398,0.56,5302,1,Master,Rejected
+33986,336,0.42,87558,9,Bachelor,Rejected
+81858,579,0.91,5055,4,Master,Rejected
+149312,648,0.11,13717,9,High School,Approved
+32666,796,0.49,33699,32,Master,Approved
+58660,601,0.01,78686,37,High School,Approved
+154633,480,0.47,72661,12,Master,Approved
+46854,398,0.06,49247,30,PhD,Rejected
+84505,415,0.12,21748,35,High School,Rejected
+124488,490,0.12,9621,23,Master,Approved
+42662,552,0.65,20034,14,PhD,Rejected
+28392,460,0.75,10126,28,High School,Rejected
+50535,555,0.58,10122,7,PhD,Rejected
+133569,622,0.96,23030,4,Bachelor,Rejected
+72256,427,0.37,87838,28,Bachelor,Rejected
+109135,317,0.29,89717,3,High School,Rejected
+147478,622,0.87,60658,11,Master,Approved
+55222,587,0.22,43638,1,High School,Rejected
+97373,454,0.96,72067,26,PhD,Rejected
+143684,789,0.01,93869,30,Master,Approved
+30965,685,0.97,39674,35,Bachelor,Rejected
+44538,403,0.04,40854,35,Master,Rejected
+128066,692,0.89,51271,25,Bachelor,Approved
+133252,545,0.53,78688,26,Master,Approved
+159182,475,0.99,43518,4,Master,Rejected
+178338,338,0.07,15267,19,Master,Approved
+118806,776,0.55,95825,10,PhD,Approved
+157982,837,0.97,6062,9,PhD,Approved
+130989,707,0.52,55448,39,High School,Approved
+110982,824,0.63,11229,37,High School,Approved
+141626,805,0.7,61793,5,Bachelor,Approved
+139176,335,0.45,52915,7,PhD,Rejected
+151278,319,0.63,9632,22,Bachelor,Rejected
+142409,620,0.58,8596,25,High School,Approved
+43419,811,0.9,11168,11,Bachelor,Rejected
+70015,699,0.05,12561,25,High School,Approved
+142096,770,0.28,78794,12,PhD,Approved
+127059,442,0.95,87152,39,Master,Approved
+130687,391,0.89,31734,17,PhD,Rejected
+107939,653,0.46,11371,24,Bachelor,Approved
+169213,350,0.62,31069,32,Bachelor,Approved
+125878,489,0.28,84905,39,PhD,Approved
+184899,424,0.19,17910,11,PhD,Approved
+82623,449,0.46,78479,35,High School,Rejected
+95450,613,0.35,82735,3,Bachelor,Rejected
+113426,641,0.58,86264,4,Bachelor,Rejected
+137845,604,0.08,28275,36,PhD,Approved
+173371,353,0.97,77274,7,Master,Rejected
+63585,743,0.99,86449,27,Bachelor,Rejected
+129225,563,0.7,65004,30,Master,Approved
+84044,352,0.54,67981,8,PhD,Rejected
+193629,304,0.31,89659,28,PhD,Approved
+129556,402,0.81,59553,13,High School,Rejected
+22693,495,0.68,53447,39,Bachelor,Rejected
+115259,649,0.16,39529,21,Master,Approved
+45939,346,0.91,80703,10,High School,Rejected
+199997,568,0.82,81090,22,Bachelor,Approved
+194013,669,0.95,22260,0,High School,Approved
+172906,405,0.73,8812,36,PhD,Approved
+38047,419,0.61,33024,20,Bachelor,Rejected
+46105,357,0.42,63656,25,High School,Rejected
+95766,645,0.93,32285,35,High School,Approved
+166779,773,0.87,97436,22,Master,Approved
+173048,416,0.05,6605,0,High School,Rejected
+64262,426,0.03,76158,39,Bachelor,Rejected
+145117,692,0.38,77303,14,Bachelor,Approved
+43776,357,0.81,32139,20,Master,Rejected
+181152,812,0.99,82149,8,Bachelor,Approved
+148376,395,0.15,61138,8,PhD,Rejected
+157848,417,0.59,81125,9,Bachelor,Rejected
+112787,787,0.38,18918,25,Bachelor,Approved
+147948,536,0.97,90655,34,High School,Approved
+75016,571,0.84,32446,24,High School,Rejected
+160546,488,0.84,18046,25,Bachelor,Approved
+41959,746,0.47,29818,10,Master,Rejected
+156602,546,0.41,9324,37,High School,Approved
+139101,375,0.27,81323,1,Master,Rejected
+23748,453,0.06,14111,6,Bachelor,Rejected
+33545,734,0.86,43110,17,Bachelor,Rejected
+147659,385,0.81,21389,26,PhD,Rejected
+185838,584,1.0,46427,33,High School,Approved
+93530,519,1.0,84579,26,Bachelor,Rejected
+113557,368,0.56,33746,16,PhD,Rejected
+81087,346,0.77,92886,23,High School,Rejected
+88840,393,0.94,5117,24,Bachelor,Rejected
+138451,752,0.85,89471,6,Bachelor,Approved
+71005,503,0.25,18234,5,High School,Rejected
+197648,517,0.45,58441,23,High School,Approved
+59353,773,0.13,5846,32,High School,Approved
+72733,731,0.95,15954,28,Bachelor,Approved
+85318,640,0.61,84239,21,Bachelor,Rejected
+174736,588,0.23,51514,25,PhD,Approved
+87172,553,0.67,93236,27,Master,Rejected
+113264,656,0.62,11469,20,High School,Approved
+46736,322,0.36,35105,6,Bachelor,Rejected
+132859,821,0.11,47101,16,Bachelor,Approved
+132181,399,0.67,69323,19,High School,Rejected
+151926,479,0.52,96922,19,Master,Approved
+110084,522,0.77,63067,21,High School,Rejected
+189695,741,0.52,54376,27,Master,Approved
+27392,624,0.85,50587,39,Bachelor,Rejected
+75680,815,0.55,41976,6,Master,Rejected
+197789,315,0.56,72584,0,PhD,Rejected
+70859,635,0.88,83477,31,Bachelor,Rejected

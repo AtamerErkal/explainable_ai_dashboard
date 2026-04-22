@@ -45,7 +45,7 @@ ENV/
 .streamlit/
 
 # Data files (optional - remove if you want to include sample data)
-*.csv
+# *.csv - Removed to allow sample_data sync
 *.xlsx
 *.xls
 data/
