@@ -147,6 +147,64 @@ st.markdown("""
         color: #14532d !important;
     }
 
+    /* Workflow Step Cards */
+    .workflow-container {
+        display: flex;
+        gap: 15px;
+        margin: 1.5rem 0;
+        flex-wrap: wrap;
+    }
+
+    .workflow-step {
+        background: white;
+        padding: 1.25rem;
+        border-radius: 16px;
+        flex: 1;
+        min-width: 200px;
+        border: 1px solid #e2e8f0;
+        position: relative;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .workflow-step:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        border-color: #6366f1;
+    }
+
+    .step-number {
+        width: 32px;
+        height: 32px;
+        background: var(--primary-gradient);
+        color: white;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .step-title {
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .step-desc {
+        color: #64748b;
+        font-size: 0.85rem;
+        line-height: 1.5;
+    }
+
+    /* Feature Highlight Glows */
+    .glow-purple { border-top: 4px solid #a855f7; }
+    .glow-blue { border-top: 4px solid #3b82f6; }
+    .glow-teal { border-top: 4px solid #2dd4bf; }
+
     /* Sidebar Styling */
     section[data-testid="stSidebar"] {
         background-color: #f8fafc;
@@ -1937,63 +1995,61 @@ else:
     col1, col2, col3 = st.columns(3)
     with col1:
         st.markdown("""
-        <div class="data-summary-box animate-fade" style="height: 100%;">
+        <div class="data-summary-box animate-fade glow-purple" style="height: 100%;">
             <h2 style='margin-bottom: 0px;'>🎯</h2>
             <h3>Global Auditing</h3>
-            <p>Discover longitudinal feature influence and governance metrics.</p>
+            <p>Discover longitudinal feature influence and governance metrics across entire datasets.</p>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
         st.markdown("""
-        <div class="data-summary-box animate-fade" style="height: 100%;">
+        <div class="data-summary-box animate-fade glow-blue" style="height: 100%;">
             <h2 style='margin-bottom: 0px;'>🔍</h2>
             <h3>Local Verification</h3>
-            <p>Verify specific operational decisions via LIME and SHAP signatures.</p>
+            <p>Verify specific operational decisions via mathematical LIME and SHAP signatures.</p>
         </div>
         """, unsafe_allow_html=True)
     
     with col3:
         st.markdown("""
-        <div class="data-summary-box animate-fade" style="height: 100%;">
+        <div class="data-summary-box animate-fade glow-teal" style="height: 100%;">
             <h2 style='margin-bottom: 0px;'>📊</h2>
             <h3>Simulation</h3>
-            <p>Perform counterfactual reasoning to probe model decision boundaries.</p>
+            <p>Perform counterfactual 'What-If' reasoning to probe the model's decision boundaries.</p>
         </div>
         """, unsafe_allow_html=True)
     
     st.markdown("---")
     
-    # Quick guide
-    st.markdown("### 🚀 Quick Start Guide")
+    # Modern Workflow Guide
+    st.markdown("### 🛰️ Operational Workflow")
     
-    guide_col1, guide_col2 = st.columns(2)
+    st.markdown("""
+    <div class="workflow-container animate-fade">
+        <div class="workflow-step">
+            <div class="step-number">01</div>
+            <div class="step-title">Intelligence Intake</div>
+            <div class="step-desc">Upload your mission-specific CSV data or select a domain sample to initialize the governance protocol.</div>
+        </div>
+        <div class="workflow-step">
+            <div class="step-number">02</div>
+            <div class="step-title">Reactor Control</div>
+            <div class="step-desc">Define target objectives and tactical features. Configure AI hyperparameters for high-precision training.</div>
+        </div>
+        <div class="workflow-step">
+            <div class="step-number">03</div>
+            <div class="step-title">Neural Execution</div>
+            <div class="step-desc">Trigger training engine. Monitor real-time performance metrics and strategic operational verdicts.</div>
+        </div>
+        <div class="workflow-step">
+            <div class="step-number">04</div>
+            <div class="step-title">XAI Verification</div>
+            <div class="step-desc">Audit the decision logic via 6 specialized tabs including SHAP, LIME, and Bias Audit protocols.</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     
-    with guide_col1:
-        st.markdown("""
-        **Step 1: Upload Data** 📁
-        - Click "Browse files" in the sidebar
-        - Select your CSV file
-        - Preview your data
-        
-        **Step 2: Configure Model** ⚙️
-        - Select target variable
-        - Choose features to include
-        - Pick a machine learning algorithm
-        """)
-    
-    with guide_col2:
-        st.markdown("""
-        **Step 3: Train & Analyze** 🎯
-        - Adjust hyperparameters if needed
-        - Click "EXECUTE TRAINING"
-        - Explore results across 6 analysis tabs
-        
-        **Step 4: Interpret Results** 💡
-        - Review model performance metrics
-        - Analyze feature importance
-        - Compare SHAP and LIME explanations
-        """)
     
     st.markdown("---")
     
