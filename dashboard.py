@@ -15,6 +15,7 @@ from sklearn.metrics import (accuracy_score, classification_report, confusion_ma
                             f1_score, recall_score, precision_score, roc_curve, auc, roc_auc_score)
 import shap
 from lime import lime_tabular
+from pandas.api.types import is_numeric_dtype
 
 try:
     from fpdf import FPDF
